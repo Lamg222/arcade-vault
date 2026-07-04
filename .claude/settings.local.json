@@ -3,7 +3,25 @@
     "allow": [
       "Bash(git init *)",
       "Bash(git remote *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "mcp__playwright__browser_navigate",
+      "Bash(node -e \"console.log\\(require.resolve\\('playwright-core'\\)\\)\")",
+      "Read(//home/lamg/.npm/_npx/e41f203b7505f1fb/node_modules/playwright/**)",
+      "Read(//home/lamg/.npm/_npx/9833c18b2d85bc59/node_modules/playwright/**)",
+      "Bash(node /tmp/claude-1000/-mnt-c-Users-alber-OneDrive-Documentos-Py--Scripts-Propios-ClaudeCode-05-skills-and-playwrightMCP-arcade-vault/32e12d7f-f615-4ca7-b7de-5c125ceef230/scratchpad/shot.mjs)",
+      "Bash(npx --yes http-server -p 8899 -s)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8899/Arcade%20Vault.html\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://127.0.0.1:8899/Arcade%20Vault.html\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"next-server\")",
+      "Bash(rm -rf /mnt/c/Users/alber/OneDrive/Documentos/Py-/Scripts/Propios/ClaudeCode/05-skills-and-playwrightMCP/arcade-vault/.next)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(pkill -9 -f \"detached-flush\")",
+      "Bash(rm -rf .next .next.bak)",
+      "Bash(mv .next .next.old)",
+      "Bash(echo \"gone=$?\")",
+      "Bash(break)",
+      "Bash(pkill -f \"http-server -p 8899\")"
     ]
   }
 }

@@ -16,17 +16,6 @@ This project uses **Next.js 16.2.9** (with React 19.2.4 and Tailwind CSS v4) —
 
 Heed deprecation notices in those docs.
 
-## Commands
-
-```bash
-npm run dev     # dev server (Turbopack)
-npm run build   # production build
-npm run start   # serve the production build
-npm run lint    # eslint (flat config, eslint.config.mjs)
-```
-
-No test runner is configured yet.
-
 ## Architecture
 
 - **App Router** under `app/`: `layout.tsx` (root layout — loads Geist fonts via `next/font/google`, sets `<html>`/`<body>` shell) and `page.tsx` (the home route). Add routes as folders with `page.tsx` under `app/`.
@@ -37,3 +26,9 @@ No test runner is configured yet.
 ## Product context
 
 Arcade Vault is a platform to play games online and compete for the highest score (see `README.md`). The project follows Spec Driven Design using the `/spec` and `/spec-impl` skills (from `Klerith/fernando-skills`).
+
+
+## Style
+
+Utiliza /frontend-desing para hacer los cambios en la interfaz de usuario.
+
