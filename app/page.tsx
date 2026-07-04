@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Library from "./components/Library";
+import Home from "./components/Home";
 
 export const metadata: Metadata = {
-  title: "Biblioteca",
+  title: "Inicio",
 };
 
-export default function Home() {
-  return <Library />;
+export default function HomePage() {
+  return <Home />;
 }

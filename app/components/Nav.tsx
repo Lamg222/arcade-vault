@@ -11,8 +11,13 @@ export default function Nav() {
   const { user, signOut } = useAuth();
   const close = () => setOpen(false);
 
-  const isBiblioteca = pathname === "/" || pathname.startsWith("/juego") || pathname.startsWith("/jugar");
+  const isInicio = pathname === "/";
+  const isBiblioteca =
+    pathname.startsWith("/biblioteca") ||
+    pathname.startsWith("/juego") ||
+    pathname.startsWith("/jugar");
   const isSalon = pathname.startsWith("/salon");
+  const isAcerca = pathname.startsWith("/acerca");
 
   return (
     <>
@@ -24,11 +29,17 @@ export default function Nav() {
           </div>
         </Link>
         <div className="links">
-          <Link href="/" className={isBiblioteca ? "active" : ""}>
+          <Link href="/" className={isInicio ? "active" : ""}>
+            Inicio
+          </Link>
+          <Link href="/biblioteca" className={isBiblioteca ? "active" : ""}>
             Biblioteca
           </Link>
           <Link href="/salon" className={isSalon ? "active" : ""}>
             Salón de la Fama
+          </Link>
+          <Link href="/acerca" className={isAcerca ? "active" : ""}>
+            Acerca de
           </Link>
         </div>
         <div className="spacer" />
@@ -60,11 +71,21 @@ export default function Nav() {
       />
       <aside className={"av-mobile-panel" + (open ? " open" : "")}>
         <div className="pixel neon-cyan mb-4 text-[11px]">MENÚ</div>
-        <Link href="/" className={isBiblioteca ? "active" : ""} onClick={close}>
+        <Link href="/" className={isInicio ? "active" : ""} onClick={close}>
+          Inicio
+        </Link>
+        <Link
+          href="/biblioteca"
+          className={isBiblioteca ? "active" : ""}
+          onClick={close}
+        >
           Biblioteca
         </Link>
         <Link href="/salon" className={isSalon ? "active" : ""} onClick={close}>
           Salón de la Fama
+        </Link>
+        <Link href="/acerca" className={isAcerca ? "active" : ""} onClick={close}>
+          Acerca de
         </Link>
         {user ? (
           <button
