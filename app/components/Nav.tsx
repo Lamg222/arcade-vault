@@ -39,7 +39,7 @@ export default function Nav() {
             Salón de la Fama
           </Link>
           <Link href="/acerca" className={isAcerca ? "active" : ""}>
-            Acerca de
+            Acerca de nosotros
           </Link>
         </div>
         <div className="spacer" />
@@ -85,7 +85,7 @@ export default function Nav() {
           Salón de la Fama
         </Link>
         <Link href="/acerca" className={isAcerca ? "active" : ""} onClick={close}>
-          Acerca de
+          Acerca de nosotros
         </Link>
         {user ? (
           <button
