@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="mb-8 text-[color:var(--ink-dim)]">
         Este cartucho no existe en el Vault.
       </p>
-      <Link href="/" className="btn lg">
+      <Link href="/biblioteca" className="btn lg">
         VOLVER AL VAULT
       </Link>
     </div>
