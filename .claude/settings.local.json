@@ -21,7 +21,42 @@
       "Bash(mv .next .next.old)",
       "Bash(echo \"gone=$?\")",
       "Bash(break)",
-      "Bash(pkill -f \"http-server -p 8899\")"
+      "Bash(pkill -f \"http-server -p 8899\")",
+      "Bash([ -f \"$F\" ])",
+      "Bash(npx next *)",
+      "Bash(git commit *)",
+      "Bash(echo \"=== exit $? ===\")",
+      "Bash(git fetch *)",
+      "Skill(update-config)",
+      "Bash(node -e \"console.log\\(require\\('prettier/package.json'\\).bin\\)\")",
+      "Bash(node -e \"const b=require\\('eslint/package.json'\\).bin; console.log\\(typeof b==='string'?b:JSON.stringify\\(b\\)\\)\")",
+      "Bash(node -e \"console.log\\(require\\('prettier/package.json'\\).version\\)\")",
+      "Bash(npm install *)",
+      "Bash(timeout 60 node node_modules/prettier/bin/prettier.cjs --write --ignore-unknown demos/Demos.tsx)",
+      "Bash(echo \"prettier exit=$?\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/prettier/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\('prettier', require\\('./node_modules/prettier/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\('eslint', require\\('./node_modules/eslint/package.json'\\).version\\)\")",
+      "Bash(timeout 90 node node_modules/eslint/bin/eslint.js --fix demos/Demos.tsx)",
+      "Bash(echo \"eslint exit=$?\")",
+      "Bash(mkdir -p /home/lamg/proyectos/arcade-vault)",
+      "Bash(rsync -a --exclude node_modules --exclude .next --exclude .next.old --exclude .next.bak /mnt/c/Users/alber/OneDrive/Documentos/Py-/Scripts/Propios/ClaudeCode/05-skills-and-playwrightMCP/arcade-vault/ /home/lamg/proyectos/arcade-vault/)",
+      "Read(//home/lamg/proyectos/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Prettier + ESLint...",
+            "timeout": 120,
+            "command": "f=$(jq -r '.tool_response.filePath // .tool_input.file_path'); { [ -n \"$f\" ] && [ -f \"$f\" ]; } || exit 0; node node_modules/prettier/bin/prettier.cjs --write --ignore-unknown \"$f\" 2>/dev/null; case \"$f\" in *.js|*.jsx|*.ts|*.tsx) node node_modules/eslint/bin/eslint.js --fix \"$f\" 2>/dev/null;; esac; true"
+          }
+        ]
+      }
     ]
   }
 }
