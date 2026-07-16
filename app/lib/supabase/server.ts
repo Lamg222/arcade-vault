@@ -9,15 +9,16 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  */
 export async function createClient(): Promise<SupabaseClient> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   // REQ-05: fallo ruidoso si falta cualquier var, en vez de pasar `undefined` a createServerClient.
   if (!url) throw new Error("Falta la variable de entorno NEXT_PUBLIC_SUPABASE_URL");
-  if (!anonKey) throw new Error("Falta la variable de entorno NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  if (!publishableKey)
+    throw new Error("Falta la variable de entorno NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
 
   const cookieStore = await cookies();
 
-  return createServerClient(url, anonKey, {
+  return createServerClient(url, publishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
