@@ -41,22 +41,43 @@
       "Bash(echo \"eslint exit=$?\")",
       "Bash(mkdir -p /home/lamg/proyectos/arcade-vault)",
       "Bash(rsync -a --exclude node_modules --exclude .next --exclude .next.old --exclude .next.bak /mnt/c/Users/alber/OneDrive/Documentos/Py-/Scripts/Propios/ClaudeCode/05-skills-and-playwrightMCP/arcade-vault/ /home/lamg/proyectos/arcade-vault/)",
-      "Read(//home/lamg/proyectos/**)"
+      "Read(//home/lamg/proyectos/**)",
+      "Bash(node -e \"console.log\\('prettier', require\\('/home/lamg/proyectos/arcade-vault/node_modules/prettier/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\('eslint', require\\('/home/lamg/proyectos/arcade-vault/node_modules/eslint/package.json'\\).version\\)\")",
+      "Bash(printf 'export const X = \\(\\) => {\\\\n        return <div>hi</div>\\\\n}\\\\n')",
+      "Read(//home/lamg/proyectos/arcade-vault/demos/**)",
+      "Bash(timeout 90 node /home/lamg/proyectos/arcade-vault/node_modules/prettier/bin/prettier.cjs --write --ignore-unknown /home/lamg/proyectos/arcade-vault/demos/Demos.tsx)",
+      "Bash(timeout 120 node /home/lamg/proyectos/arcade-vault/node_modules/eslint/bin/eslint.js --fix /home/lamg/proyectos/arcade-vault/demos/Demos.tsx)",
+      "Bash(echo \"jq exit=$?\")",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault remote -v)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault rev-parse --abbrev-ref HEAD)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault status --short)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault branch)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault log --oneline main..HEAD)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault ls-files --error-unmatch .claude/settings.local.json)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault ls-files --error-unmatch .env)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault diff .env.example)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault branch -r)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault fetch origin)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault log --oneline origin/main..main)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault add -A)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault commit -q -F -)",
+      "Bash(echo \"commit exit=$?\")",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault log --oneline -1)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault checkout main)",
+      "Bash(echo \"merge exit=$?\")",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault log --oneline -3)",
+      "Bash(git -C /home/lamg/proyectos/arcade-vault push origin main)",
+      "Bash(echo \"push exit=$?\")",
+      "Bash(gh pr *)",
+      "Bash(echo \"=== merge exit=$? ===\")",
+      "Bash(python3 *)",
+      "Bash(git stash *)",
+      "Bash(git switch *)",
+      "Bash(git merge *)"
     ]
   },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "statusMessage": "Prettier + ESLint...",
-            "timeout": 120,
-            "command": "f=$(jq -r '.tool_response.filePath // .tool_input.file_path'); { [ -n \"$f\" ] && [ -f \"$f\" ]; } || exit 0; node node_modules/prettier/bin/prettier.cjs --write --ignore-unknown \"$f\" 2>/dev/null; case \"$f\" in *.js|*.jsx|*.ts|*.tsx) node node_modules/eslint/bin/eslint.js --fix \"$f\" 2>/dev/null;; esac; true"
-          }
-        ]
-      }
-    ]
-  }
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }
