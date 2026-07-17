@@ -11,14 +11,15 @@
 | 02 | Landing page (Home) y navegación Inicio/Acerca     | Implemented | 01                      | landing-home-y-nav      | —          |
 | 03 | About real y contacto por email con Resend         | Implemented | 02                      | about-y-contacto-resend | —          |
 | 04 | Integración base de Supabase (clientes browser+server) | Implemented | 01, 03              | integracion-supabase    | —          |
+| 05 | Juego Asteroides embebido y puenteado                  | Implemented | 01                  | juego-asteroides        | —          |
 
 ## Mapa de dependencias
 
 ```
 SPEC 01 ──▶ SPEC 02 ──▶ SPEC 03 ──▶ SPEC 04
    │                                  ▲
-   └──────────────────────────────────┘
-        (04 depende de 01 y de 03)
+   ├──────────────────────────────────┘   (04 depende de 01 y de 03)
+   └──▶ SPEC 05                            (05 depende de 01)
 ```
 
 ## Próximos specs (planeados, fuera del scope actual)
@@ -31,3 +32,4 @@ Recogidos de las secciones "Qué NO está en este spec" de los specs existentes:
 - Migración del catálogo `games.ts` / `scores.ts` a DB.
 - `middleware.ts` para refresh de sesión (refresco de token en cada request).
 - Realtime (tiempo real por WebSocket) y Edge Functions (funciones serverless en el borde).
+- Portar el resto de juegos (`rocas`, `caida`, `serpentina`, …) al patrón embed + puente `postMessage` establecido en el spec 05.
