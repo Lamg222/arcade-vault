@@ -10,6 +10,8 @@ export type Game = {
   color: "cyan" | "magenta" | "yellow" | "green";
   best: number;
   plays: string;
+  // Ruta pública al juego real embebible (iframe); si falta, el juego es mock. Única fuente de verdad de "jugable" (spec 05).
+  embed?: string;
 };
 
 export const GAMES: Game[] = [
@@ -100,6 +102,18 @@ export const GAMES: Game[] = [
     color: "cyan",
     best: 24,
     plays: "4.2K",
+  },
+  {
+    id: "asteroides",
+    title: "ASTEROIDES",
+    short: "Rota, propulsa y pulveriza asteroides en el vacío.",
+    long: "Pilota una nave triangular en un campo de asteroides toroidal (los bordes se envuelven). Dispara para partir rocas grandes en fragmentos menores y recoge power-ups de disparo triple. 3 vidas con invencibilidad temporal al reaparecer.",
+    cat: "SHOOTER",
+    cover: "cover-rocas",
+    color: "cyan",
+    best: 0,
+    plays: "0",
+    embed: "/games/asteroides/index.html",
   },
 ];
 
