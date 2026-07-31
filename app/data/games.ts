@@ -115,6 +115,18 @@ export const GAMES: Game[] = [
     plays: "0",
     embed: "/games/asteroides/index.html",
   },
+  {
+    id: "tetris",
+    title: "TETRIS",
+    short: "Encaja tetrominós y limpia líneas antes de desbordar.",
+    long: "Rota y desliza piezas de siete formas mientras caen sobre una grilla de 10×20. Completa filas horizontales para eliminarlas y sumar puntos; cada diez líneas subes de nivel y las piezas caen más rápido. La partida termina cuando la pila alcanza el techo.",
+    cat: "PUZZLE",
+    cover: "cover-tetro",
+    color: "yellow",
+    best: 0,
+    plays: "0",
+    embed: "/games/tetris/index.html",
+  },
 ];
 
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"];
