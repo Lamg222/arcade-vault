@@ -156,6 +156,7 @@ function updateHUD() {
   scoreEl.textContent = score.toLocaleString();
   linesEl.textContent = lines;
   levelEl.textContent = level;
+  emitState();
 }
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
@@ -226,11 +227,13 @@ function endGame() {
   overlayTitle.textContent = 'GAME OVER';
   overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
   overlay.classList.remove('hidden');
+  postToHost({ type: 'gameover', score });
 }
 
 function togglePause() {
   if (gameOver) return;
   paused = !paused;
+  postToHost({ type: 'paused', value: paused });
   if (!paused) {
     lastTime = performance.now();
     loop(lastTime);
@@ -329,4 +332,38 @@ themeToggle.addEventListener('click', () => {
   localStorage.setItem('tetris-theme', isLight ? 'light' : 'dark');
 });
 
+// ── Puente con la plataforma (postMessage) ──────────────────────────────────────
+/* Contrato espejado en app/lib/games/bridge.ts (spec 05).
+ * Juego → Host: ready, score, level, paused, gameover. (Tetris no tiene vidas.)
+ * Host → Juego: pause, resume, restart.
+ * Se emite desde los choke points (updateHUD/endGame/togglePause), no desde el loop:
+ * el loop de tetris se auto-cancela al pausar o terminar, así que un emit por-frame
+ * perdería el gameover disparado por tecla. */
+
+function postToHost(msg) {
+  try {
+    window.parent.postMessage(msg, window.location.origin || '*');
+  } catch (_) {
+    // Standalone (file://) o sin parent: ignorar; el juego sigue funcionando.
+  }
+}
+
+// Último estado emitido, para enviar solo los cambios (emisor por diff).
+const lastEmit = { score: null, level: null };
+
+function emitState() {
+  if (score !== lastEmit.score) { lastEmit.score = score; postToHost({ type: 'score', value: score }); }
+  if (level !== lastEmit.level) { lastEmit.level = level; postToHost({ type: 'level', value: level }); }
+}
+
+// Comandos del contenedor (Player). togglePause() ya emite {paused} en ambos sentidos.
+window.addEventListener('message', e => {
+  if (e.origin !== window.location.origin) return;   // solo mismo origen
+  const cmd = e.data && e.data.type;
+  if (cmd === 'pause') { if (!paused && !gameOver) togglePause(); }
+  else if (cmd === 'resume') { if (paused) togglePause(); }
+  else if (cmd === 'restart') { init(); }
+});
+
 init();
+postToHost({ type: 'ready' });
