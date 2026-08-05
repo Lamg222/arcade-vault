@@ -3,9 +3,9 @@ const ctx = canvas.getContext('2d');
 
 const GRID_N = 20;                       // celdas por lado
 const CELL = canvas.width / GRID_N;      // 600 / 20 = 30 px por celda
-const BASE_STEP = 140;                   // ms por avance en nivel 1
-const STEP_DECREMENT = 8;                // ms menos por nivel (más rápido)
-const MIN_STEP = 60;                     // suelo de velocidad
+const BASE_STEP = 200;                   // ms por avance en nivel 1 (arranque tranquilo)
+const STEP_DECREMENT = 6;                // ms menos por nivel (más rápido)
+const MIN_STEP = 80;                     // suelo de velocidad
 const FRUITS_PER_LEVEL = 5;              // frutas para subir de nivel
 const POINTS_PER_FRUIT = 10;
 
@@ -26,6 +26,7 @@ let fruitsEaten = 0;
 let stepInterval = BASE_STEP;
 let gameOver = false;
 let paused = false;
+let started = false;                      // la serpiente no se mueve hasta la primera flecha/WASD
 
 // Último estado emitido al host, para enviar solo los cambios (emisor por diff). Lo usa initGame() al reiniciar, por eso vive aquí arriba y no en el bloque puente.
 const lastEmit = { score: null, level: null, over: false };
@@ -42,11 +43,12 @@ function spawnFood() {
 }
 
 function initGame() {
-  const mid = Math.floor(GRID_N / 2);
+  // Arranca pegada a la izquierda mirando a la derecha: toda la pista por delante.
+  const midY = Math.floor(GRID_N / 2);
   snake = [
-    { x: mid, y: mid },
-    { x: mid - 1, y: mid },
-    { x: mid - 2, y: mid },
+    { x: 3, y: midY },
+    { x: 2, y: midY },
+    { x: 1, y: midY },
   ];
   dir = { x: 1, y: 0 };
   nextDir = { x: 1, y: 0 };
@@ -55,6 +57,7 @@ function initGame() {
   fruitsEaten = 0;
   stepInterval = BASE_STEP;
   gameOver = false;
+  started = false;
   lastEmit.over = false;
   spawnFood();
 }
@@ -63,6 +66,7 @@ function setDirection(nx, ny) {
   // Ignora el giro de 180° (no puede volver sobre sí misma en un mismo paso).
   if (nx === -dir.x && ny === -dir.y) return;
   nextDir = { x: nx, y: ny };
+  started = true;   // la primera flecha/WASD arranca el movimiento
 }
 
 document.addEventListener('keydown', (e) => {
@@ -180,6 +184,7 @@ function draw() {
   ctx.textAlign = 'right';
   ctx.fillText('Nivel: ' + level, canvas.width - 12, 12);
 
+  if (!started && !gameOver) drawOverlay('SNAKE', 'FLECHAS O WASD PARA EMPEZAR');
   if (paused && !gameOver) drawOverlay('PAUSA', 'P O EL BOTÓN PARA CONTINUAR');
   if (gameOver) drawOverlay('GAME OVER', 'ENTER PARA REINICIAR');
 }
@@ -192,7 +197,7 @@ function loop(timestamp) {
   const dt = timestamp - lastTime;
   lastTime = timestamp;
 
-  if (!paused && !gameOver) {
+  if (started && !paused && !gameOver) {
     acc += dt;
     while (acc >= stepInterval) {
       acc -= stepInterval;
@@ -208,6 +213,15 @@ function loop(timestamp) {
 
 initGame();
 requestAnimationFrame(loop);
+
+/* Enfoca el lienzo para que las flechas lleguen al juego y no desplacen la página.
+ * Sin esto, hasta el primer clic el iframe no tiene el foco y las teclas van al contenedor. */
+canvas.tabIndex = 0;
+canvas.style.outline = 'none';
+function grabFocus() { try { window.focus(); canvas.focus(); } catch (_) {} }
+grabFocus();
+window.addEventListener('load', grabFocus);
+window.addEventListener('pointerdown', grabFocus);
 
 // ── Puente con la plataforma (postMessage) ──────────────────────────────────────
 /* Contrato espejado en app/lib/games/bridge.ts (spec 05).
