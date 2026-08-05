@@ -66,6 +66,8 @@ function setDirection(nx, ny) {
 }
 
 document.addEventListener('keydown', (e) => {
+  // Evita que flechas/espacio hagan scroll de la página en vez de mover el juego.
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
   switch (e.key) {
     case 'ArrowUp': case 'w': case 'W': setDirection(0, -1); break;
     case 'ArrowDown': case 's': case 'S': setDirection(0, 1); break;

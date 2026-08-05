@@ -11,6 +11,8 @@ const keys = {};
 const justPressed = {};
 
 window.addEventListener( 'keydown', e => {
+  // Evita que flechas/espacio hagan scroll de la página en vez de mover el juego.
+  if ( [ 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space' ].includes( e.code ) ) e.preventDefault();
   if ( !keys[ e.code ] ) justPressed[ e.code ] = true;
   keys[ e.code ] = true;
 } );

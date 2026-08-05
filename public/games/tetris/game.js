@@ -281,6 +281,8 @@ function init() {
 }
 
 document.addEventListener('keydown', e => {
+  // Evita que flechas/espacio hagan scroll de la página en vez de mover el juego.
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
   if (e.code === 'KeyP') { togglePause(); return; }
   if (paused || gameOver) return;
   switch (e.code) {

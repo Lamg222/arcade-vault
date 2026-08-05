@@ -92,6 +92,8 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
+  // Evita que flechas/espacio hagan scroll de la página en vez de mover el juego.
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
   if (e.key in keys) keys[e.key] = true;
   if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && gameState === 'playing') {
     setPaused(!isPaused);
