@@ -127,6 +127,18 @@ export const GAMES: Game[] = [
     plays: "0",
     embed: "/games/tetris/index.html",
   },
+  {
+    id: "arkanoid",
+    title: "ARKANOID",
+    short: "Rebota la bola con la paleta y pulveriza cada ladrillo.",
+    long: "Controla una paleta en la base y mantén la bola en juego para demoler muros de ladrillos de colores a lo largo de cinco niveles de dificultad creciente. Cada ladrillo estalla al impacto; pierdes una de tus tres vidas si la bola cae al vacío. En pausa puedes saltar directamente a cualquier nivel.",
+    cat: "ARCADE",
+    cover: "cover-bricks",
+    color: "cyan",
+    best: 0,
+    plays: "0",
+    embed: "/games/arkanoid/index.html",
+  },
 ];
 
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"];
