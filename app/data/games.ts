@@ -139,6 +139,18 @@ export const GAMES: Game[] = [
     plays: "0",
     embed: "/games/arkanoid/index.html",
   },
+  {
+    id: "snake",
+    title: "SNAKE",
+    short: "Crece comiendo fruta sin morderte la cola.",
+    long: "Guía la serpiente por una grilla de 20×20 recogiendo fruta que aparece al azar. Cada bocado la alarga y, cada pocas frutas, sube el nivel y acelera el ritmo. Chocar contra un muro o contra tu propio cuerpo termina la partida: un solo descuido y todo acaba.",
+    cat: "ARCADE",
+    cover: "cover-snake",
+    color: "green",
+    best: 0,
+    plays: "0",
+    embed: "/games/snake/index.html",
+  },
 ];
 
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"];
