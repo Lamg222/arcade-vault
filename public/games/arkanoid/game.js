@@ -78,7 +78,7 @@ canvas.addEventListener('click', (e) => {
     const bx = PAUSE_BTN_ROW_X + i * (PAUSE_BTN_W + PAUSE_BTN_GAP);
     if (mx >= bx && mx <= bx + PAUSE_BTN_W && my >= PAUSE_BTN_Y && my <= PAUSE_BTN_Y + PAUSE_BTN_H) {
       loadLevel(i + 1);
-      isPaused = false;
+      setPaused(false);
       return;
     }
   }
@@ -94,7 +94,7 @@ canvas.addEventListener('mousemove', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key in keys) keys[e.key] = true;
   if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && gameState === 'playing') {
-    isPaused = !isPaused;
+    setPaused(!isPaused);
   }
 });
 
@@ -257,6 +257,7 @@ function loop(timestamp) {
 
   if (!isPaused) update(dt);
   draw();
+  emitState();
 
   requestAnimationFrame(loop);
 }
@@ -266,3 +267,59 @@ loadSpritesheet(() => {
   loadLevel(1);
   requestAnimationFrame(loop);
 });
+
+// ── Puente con la plataforma (postMessage) ──────────────────────────────────────
+/* Contrato espejado en app/lib/games/bridge.ts (spec 05).
+ * Juego → Host: ready, score, lives, level, paused, gameover.
+ * Host → Juego: pause, resume, restart. */
+
+function postToHost(msg) {
+  try {
+    window.parent.postMessage(msg, window.location.origin || '*');
+  } catch (_) {
+    // Standalone (file://) o sin parent: ignorar; el juego sigue funcionando.
+  }
+}
+
+// Último estado emitido, para enviar solo los cambios (emisor por diff).
+const lastEmit = { score: null, lives: null, level: null, over: false };
+
+function emitState() {
+  if (score !== lastEmit.score) { lastEmit.score = score; postToHost({ type: 'score', value: score }); }
+  if (lives !== lastEmit.lives) { lastEmit.lives = lives; postToHost({ type: 'lives', value: lives }); }
+  if (currentLevel !== lastEmit.level) { lastEmit.level = currentLevel; postToHost({ type: 'level', value: currentLevel }); }
+
+  // Fin de partida: derrota (gameover) o victoria (win). Emite solo en el flanco de subida.
+  const overNow = (gameState === 'gameover' || gameState === 'win');
+  if (overNow && !lastEmit.over) postToHost({ type: 'gameover', score });
+  lastEmit.over = overNow;
+}
+
+function setPaused(next) {
+  if (isPaused === next) return;
+  isPaused = next;
+  postToHost({ type: 'paused', value: isPaused });
+}
+
+// Reinicio completo (comando restart): estado a cero y nivel 1.
+function restartGame() {
+  score = 0;
+  lives = 3;
+  currentLevel = 1;
+  gameState = 'playing';
+  lastEmit.over = false;
+  initPaddle();
+  loadLevel(1);
+}
+
+// Comandos del contenedor (Player).
+window.addEventListener('message', e => {
+  if (e.origin !== window.location.origin) return;   // solo mismo origen
+  const cmd = e.data && e.data.type;
+  if (cmd === 'pause') setPaused(true);
+  else if (cmd === 'resume') setPaused(false);
+  else if (cmd === 'restart') { restartGame(); setPaused(false); }
+});
+
+// Handshake: el host no envía comandos hasta recibir 'ready'.
+postToHost({ type: 'ready' });
