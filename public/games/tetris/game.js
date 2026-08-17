@@ -31,13 +31,8 @@ const SKIN_PALETTES = {
 };
 
 let theme = SKIN_PALETTES.clasico;
-
-// Se suscribe al mecanismo compartido: fija la paleta y repinta si el juego ya arrancó.
-AVSkin.onChange(id => {
-  theme = SKIN_PALETTES[id] || SKIN_PALETTES.clasico;
-  if (typeof board !== 'undefined' && board) draw();
-  if (typeof next !== 'undefined' && next) drawNext();
-});
+// La suscripción al mecanismo compartido (AVSkin.onChange) se registra al final
+// del archivo, cuando board/next ya existen, para no tocarlas en su zona muerta.
 
 const PIECES = [
   null,
@@ -376,4 +371,14 @@ window.addEventListener('message', e => {
 });
 
 init();
+
+/* Suscripción al conmutador de skins compartido. Se registra tras init() para que
+ * board/next ya existan: onChange invoca el callback de inmediato con la skin
+ * activa, fijando la paleta y repintando con el tema correcto. */
+AVSkin.onChange(id => {
+  theme = SKIN_PALETTES[id] || SKIN_PALETTES.clasico;
+  if (board) draw();
+  if (next) drawNext();
+});
+
 postToHost({ type: 'ready' });
