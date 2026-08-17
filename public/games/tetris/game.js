@@ -28,6 +28,13 @@ const SKIN_PALETTES = {
     glow: 0,
     pieces: [null, '#4ea1a1', '#d9a441', '#b06fa0', '#6fa86f', '#c56b5c', '#5f7fa8', '#d98c4a', '#9a8f7a'],
   },
+  // Cuarta skin: el antiguo modo claro. Mismas piezas que clasico sobre lienzo claro; rejilla tenue clara.
+  claro: {
+    grid: '#c8c8dc',
+    highlight: 'rgba(0,0,0,0.10)',
+    glow: 0,
+    pieces: [null, '#4dd0e1', '#ffd54f', '#ba68c8', '#81c784', '#e57373', '#90caf9', '#ffb74d', '#9e9e9e'],
+  },
 };
 
 let theme = SKIN_PALETTES.clasico;
