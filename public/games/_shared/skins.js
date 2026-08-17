@@ -27,10 +27,10 @@
  * ───────────────────────────────────────────────────────────────────────────── */
 
 (function () {
-  const KEY = 'av-skin';                       // clave común de localStorage
-  const SKINS = ['clasico', 'neon', 'retro'];  // 'clasico' es SIEMPRE el default
+  const KEY = 'av-skin';                                 // clave común de localStorage
+  const SKINS = ['clasico', 'neon', 'retro', 'claro'];   // 'clasico' es SIEMPRE el default
   const DEFAULT = 'clasico';
-  const LABEL = { clasico: 'CLÁSICO', neon: 'NEON', retro: 'RETRO' };
+  const LABEL = { clasico: 'CLÁSICO', neon: 'NEON', retro: 'RETRO', claro: 'CLARO' };
 
   function read() {
     try {

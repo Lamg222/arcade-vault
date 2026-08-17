@@ -72,6 +72,17 @@ const SKIN_PALETTES = {
     particle: '51,255,102',
     glow: 6,
   },
+  // Cuarta skin: modo claro (asteroides no tenia). Lienzo claro con vectores oscuros para contraste.
+  claro: {
+    bg: '#e4e4f0',
+    stroke: '#1a1a2e',
+    bullet: '#1a1a2e',
+    accent: '#3a5bd0',
+    flame: 'rgba(230,110,0,0.9)',
+    hud: '#1a1a2e',
+    particle: '40,40,60',
+    glow: 0,
+  },
 };
 
 let theme = SKIN_PALETTES.clasico;

@@ -56,3 +56,10 @@ body[data-skin="retro"] {
   --av-switch-border: #5a4a2a;
   --av-switch-text: #ffe9b0;
 }
+
+body[data-skin="claro"] {
+  --av-switch-accent: #3a5bd0;
+  --av-switch-bg: rgba(240, 240, 248, 0.85);
+  --av-switch-border: #9090b8;
+  --av-switch-text: #3a3a6a;
+}

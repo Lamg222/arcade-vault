@@ -53,6 +53,22 @@ body[data-skin="retro"] {
   --danger: #e0765c;
 }
 
+/* Cuarta skin: recupera el antiguo modo claro de Tetris (valores originales de body.light-mode). */
+body[data-skin="claro"] {
+  --bg: #f0f0f8;
+  --text: #1a1a2e;
+  --canvas-bg: #e4e4f0;
+  --border: #b0b0c8;
+  --label: #6060a0;
+  --controls-text: #404060;
+  --kbd-bg: #dcdcf0;
+  --kbd-border: #9090b8;
+  --kbd-text: #3a3a6a;
+  --overlay-bg: rgba(210, 210, 230, 0.85);
+  --accent: #7aa2f7;
+  --danger: #e57373;
+}
+
 body {
   background: var(--bg);
   color: var(--text);

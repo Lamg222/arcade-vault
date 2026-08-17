@@ -4,13 +4,14 @@ Estado: vigente. Aplica a **todos** los juegos de `public/games/<id>/`, no solo 
 
 Una **skin** es un tema visual intercambiable de un juego: su paleta de colores y estilo de dibujo. No cambia jugabilidad, ni score, ni el contrato del puente `postMessage` (mensajería entre el iframe del juego y la página del Player). Las skins son puramente visuales.
 
-Toda plataforma ofrece las mismas **tres** skins, con estos ids exactos:
+Toda plataforma ofrece las mismas **cuatro** skins, con estos ids exactos:
 
 - `clasico` — el default, **siempre**. El look original del juego.
 - `neon` — paleta saturada y brillante, con glow (resplandor) sobre fondo casi negro.
 - `retro` — paleta cálida/fosforescente estilo arcade o CRT (monitor de tubo) antiguo.
+- `claro` — modo claro: fondo claro con elementos oscuros, para entornos luminosos.
 
-No se inventan skins más allá de estas tres salvo que el usuario lo pida.
+No se inventan skins más allá de estas cuatro salvo que el usuario lo pida.
 
 ## Principio rector: un solo mecanismo
 
@@ -31,7 +32,7 @@ Por qué dos capas (CSS y JS) para el color: el CSS puede tematizar el DOM (marc
 
 1. `skins.js` lee la clave común `av-skin` de `localStorage` (almacenamiento del navegador que persiste entre sesiones). Si no hay valor válido, usa `clasico`.
 2. Escribe el id en `document.body.dataset.skin`, es decir el atributo `<body data-skin="…">`. Ese atributo es el interruptor: el CSS del juego reacciona con selectores `body[data-skin="neon"] { … }`.
-3. Inyecta un botón flotante (arriba-derecha) que cicla `clasico → neon → retro → clasico`. Al cambiar, persiste la elección y avisa a los suscriptores.
+3. Inyecta un botón flotante (arriba-derecha) que cicla `clasico → neon → retro → claro → clasico`. Al cambiar, persiste la elección y avisa a los suscriptores.
 
 ## API que consume cada juego
 
@@ -50,6 +51,7 @@ const SKIN_PALETTES = {
   clasico: { /* colores del canvas para clasico */ },
   neon:    { /* … */ },
   retro:   { /* … */ },
+  claro:   { /* … */ },
 };
 let theme = SKIN_PALETTES.clasico;
 AVSkin.onChange(id => {
@@ -79,14 +81,14 @@ La ruta `../_shared/` resuelve tanto servida (el iframe carga `/games/<id>/index
 
 ## Migración del toggle claro/oscuro de Tetris
 
-Tetris tenía su propio conmutador de **dos** modos (`body.light-mode` + clave `tetris-theme` en `localStorage`), independiente y no reutilizable. Se reemplaza por este mecanismo de tres skins:
+Tetris tenía su propio conmutador de **dos** modos (`body.light-mode` + clave `tetris-theme` en `localStorage`), independiente y no reutilizable. Se reemplaza por este mecanismo de skins:
 
 - El botón propio de Tetris y su código (`applyTheme`, la clave `tetris-theme`) se eliminan; los sustituye el botón compartido y la clave común `av-skin`.
-- Sus tokens de cromo dejan de colgar de `:root` / `body.light-mode` y pasan a `body[data-skin="clasico|neon|retro"]`.
+- Sus tokens de cromo dejan de colgar de `:root` / `body.light-mode` y pasan a `body[data-skin="clasico|neon|retro|claro"]`.
 - El default pasa a ser `clasico` (el tema oscuro original de Tetris).
 
-Decisión y su tradeoff (compromiso): el antiguo **modo claro** era un cuarto look. La instrucción vigente fija exactamente tres skins (`clasico`, `neon`, `retro`) y prohíbe inventar una cuarta, y mantener a la vez un toggle claro/oscuro y un conmutador de skins violaría el principio de un solo mecanismo. Por eso el modo claro se retira como modo separado. Si en el futuro se quiere recuperar un look claro, se añade como skin adicional bajo esta misma maquinaria (una entrada más en `SKINS`, un bloque `body[data-skin="…"]` y una paleta), nunca como un conmutador paralelo.
+El antiguo **modo claro** no se pierde: se recupera exactamente como la cuarta skin `claro`, integrada bajo esta misma maquinaria (una entrada más en `SKINS`, un bloque `body[data-skin="claro"]` y una paleta de canvas), nunca como un conmutador paralelo. Así se respeta el principio de un solo mecanismo y a la vez se conserva el look claro. La paleta `claro` de Tetris reusa los valores originales de `body.light-mode`; los demás juegos (p.ej. asteroides) definen su propia paleta clara equivalente, ya que la lista de skins es común a todos.
 
 ## Verificación por juego
 
-Cada juego debe: arrancar en `clasico`; conmutar entre las tres skins con el botón; persistir la elección al recargar; y seguir jugable en standalone. El puente `postMessage` no se ve afectado — no se emite ni se escucha ningún mensaje nuevo por causa de las skins.
+Cada juego debe: arrancar en `clasico`; conmutar entre las cuatro skins con el botón; persistir la elección al recargar; y seguir jugable en standalone. El puente `postMessage` no se ve afectado — no se emite ni se escucha ningún mensaje nuevo por causa de las skins.

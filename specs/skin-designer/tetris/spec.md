@@ -1,6 +1,6 @@
 # Skins de Tetris
 
-Aplica la [convención compartida](../convencion-skins.md). Tres skins: `clasico` (default), `neon`, `retro`.
+Aplica la [convención compartida](../convencion-skins.md). Cuatro skins: `clasico` (default), `neon`, `retro`, `claro`.
 
 ## Estado previo
 
@@ -20,7 +20,7 @@ Tetris tenía un conmutador propio de dos modos (claro/oscuro): un botón `#them
 
 ## Migración del modo claro
 
-El antiguo modo claro se retira como modo separado (ver el apartado de migración en la convención): la instrucción fija exactamente tres skins y prohíbe una cuarta, y sostener a la vez un toggle claro/oscuro y un conmutador de skins rompería el principio de un solo mecanismo. Recuperarlo en el futuro sería añadir una skin más bajo esta misma maquinaria, nunca un conmutador paralelo.
+El antiguo modo claro se conserva, recuperado como la cuarta skin `claro` bajo el mecanismo compartido (no como toggle paralelo): una entrada `claro` en `SKINS`, un bloque `body[data-skin="claro"]` en `style.css` con los valores originales de `body.light-mode`, y una paleta `claro` en `SKIN_PALETTES` (mismas piezas que `clasico` sobre lienzo claro). Así se respeta el principio de un solo mecanismo y a la vez se mantiene el look claro que existía. El `#theme-toggle` propio y la clave `tetris-theme` siguen eliminados; el conmutador y la persistencia son los compartidos.
 
 ## Verificación
 
