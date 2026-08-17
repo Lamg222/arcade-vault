@@ -27,6 +27,7 @@ Before asking questions about the feature, make sure you have project context:
 1. Read the project-memory file, if one exists. Try in order and stop at the first hit: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `README.md`. This adapts the skill to whichever agent is running it (Claude Code, Codex, Gemini CLI, etc.).
 2. List the contents of `specs/` to see which specs already exist and how they are numbered.
 3. If previous specs exist, read at least the two most recent ones to pick up the project's conventions.
+4. **If the feature is adding or porting a game** (anything under `references/started-games/`, a new playable game, a leaderboard-backed game), you MUST read `.claude/skills/add-game/SKILL.md` and its `bridge-template.md` **before** asking questions or proposing structure. That skill is the repeatable flow that fuses specs 05 (embed + `postMessage` bridge) and 06 (Supabase leaderboard); the platform plumbing is already generic, so a game spec must scope only the five per-game artifacts add-game defines — not reinvent Player/scores/leaderboards. Let add-game shape the scope, data model, and plan. If the feature is not about a game, skip this step.
 
 If the `$ARGUMENTS` argument comes in empty, ask the user for an initial **single-sentence** description of what they want to build. If the description does not fit in one sentence, that is the first signal that the feature is too big — suggest splitting it before continuing.
 

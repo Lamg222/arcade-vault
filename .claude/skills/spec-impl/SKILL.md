@@ -28,6 +28,8 @@ Branch-creation config:
 
 Follow these four phases in strict order. **Do not advance to the next phase if the previous one did not complete correctly.**
 
+**Reusable flow — porting a game.** If the spec you are implementing is about adding or porting a game (a game under `references/started-games/`, a new playable game, or a leaderboard-backed game), you MUST read `.claude/skills/add-game/SKILL.md` and its `bridge-template.md` before Phase 4 and follow that flow for the implementation. It is the repeatable port that fuses specs 05 (embed + `postMessage` bridge) and 06 (Supabase leaderboard): touch only the five per-game artifacts, never the already-generic platform plumbing (`Player.tsx`, `app/lib/scores.ts`, the leaderboards, `bridge.ts`). If the spec is not about a game, ignore this note.
+
 ---
 
 ### Phase 1 — Identify the spec

@@ -74,7 +74,23 @@
       "Bash(python3 *)",
       "Bash(git stash *)",
       "Bash(git switch *)",
-      "Bash(git merge *)"
+      "Bash(git merge *)",
+      "Bash(awk -F= '/^NEXT_PUBLIC_SUPABASE_URL=/{print \"URL len:\", length\\($2\\)} /^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/{print \"KEY len:\", length\\($2\\)}' .env)",
+      "Bash(git -C . check-ignore .env)",
+      "Bash(mkdir -p public/games/tetris)",
+      "Bash(cp references/started-games/03-tetris/index.html references/started-games/03-tetris/game.js references/started-games/03-tetris/style.css public/games/tetris/)",
+      "Bash(node --check public/games/tetris/game.js)",
+      "Bash(curl -s http://localhost:3000/juego/tetris)",
+      "Bash(curl -s http://localhost:3000/salon)",
+      "Bash(curl -s http://localhost:3000/biblioteca)",
+      "Read(//mnt/c/Users/alber/OneDrive/Documentos/Py-/Scripts/Propios/ClaudeCode/05-skills-and-playwrightMCP/arcade-vault/specs/**)",
+      "Read(//mnt/c/Users/alber/OneDrive/Documentos/Py-/Scripts/Propios/ClaudeCode/05-skills-and-playwrightMCP/arcade-vault/.claude/skills/**)",
+      "Bash(git -C /mnt/c/Users/alber/OneDrive/Documentos/Py-/Scripts/Propios/ClaudeCode/05-skills-and-playwrightMCP/arcade-vault branch -a)",
+      "Bash(git -C /mnt/c/Users/alber/OneDrive/Documentos/Py-/Scripts/Propios/ClaudeCode/05-skills-and-playwrightMCP/arcade-vault log --oneline -15)",
+      "Bash(rg -rn \"cover-bricks\" app/globals.css)",
+      "Bash(curl -s -o /dev/null -w '/juego/arkanoid -> HTTP %{http_code}\\\\n' http://localhost:3000/juego/arkanoid)",
+      "Bash(mkdir -p public/games/snake)",
+      "Bash(cp references/snake-assets/fruits.png references/snake-assets/sprites.js public/games/snake/)"
     ]
   },
   "enabledMcpjsonServers": [
