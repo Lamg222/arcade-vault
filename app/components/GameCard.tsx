@@ -35,6 +35,12 @@ export default function GameCard({ game }: { game: Game }) {
       <div className="cover">
         <div className={"cover-bg " + game.cover} />
         <div className="label">{game.cat}</div>
+        {/* REQ-12: juego no jugable (sin embed) => etiqueta PRÓXIMAMENTE. */}
+        {!game.embed && (
+          <div className="pixel absolute right-2 top-2 z-[2] bg-black/70 px-2 py-1 text-[8px] tracking-[0.16em] text-[color:var(--yellow)]">
+            PRÓXIMAMENTE
+          </div>
+        )}
       </div>
       <div className="meta">
         <div className="title">{game.title}</div>

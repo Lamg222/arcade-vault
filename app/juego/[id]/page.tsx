@@ -68,7 +68,7 @@ export default async function GameDetailPage({
       </div>
 
       <aside>
-        <Leaderboard seed={game.id.length * 17 + 3} count={10} />
+        <Leaderboard gameId={game.id} count={10} />
       </aside>
     </div>
   );
