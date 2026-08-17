@@ -4,23 +4,32 @@
   <meta charset="UTF-8">
   <title>Asteroids</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="../_shared/skins.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #000;
+      background: var(--page-bg, #000);
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      transition: background 0.25s;
     }
     canvas {
       display: block;
-      border: 1px solid #222;
+      border: 1px solid var(--page-border, #222);
+      transition: border-color 0.25s;
     }
+    /* Cromo alrededor del canvas por skin. Los colores DENTRO del canvas viven
+       en SKIN_PALETTES de game.js (el CSS no pinta pixeles del canvas). */
+    body[data-skin="clasico"] { --page-bg: #000; --page-border: #222; }
+    body[data-skin="neon"]    { --page-bg: #05010d; --page-border: #2a1240; }
+    body[data-skin="retro"]   { --page-bg: #001200; --page-border: #0f3a1a; }
   </style>
 </head>
 <body>
   <canvas id="canvas" width="800" height="600"></canvas>
+  <script src="../_shared/skins.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
