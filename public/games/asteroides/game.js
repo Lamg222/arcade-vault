@@ -36,6 +36,50 @@ const POWERUP_DURATION = 5;
 const POWERUP_TTL = 12;
 const TRIPLE_SPREAD = 0.18;
 
+/* ── Skins ─────────────────────────────────────────────────────────────────────
+ * Paletas del canvas por skin. El mecanismo (seleccion/persistencia/boton) es
+ * compartido y vive en ../_shared/skins.js; aqui solo se declaran los COLORES
+ * que asteroides dibuja. `particle` es un rgb suelto ("r,g,b") porque las
+ * particulas se pintan con alpha variable; `glow` es el radio de resplandor. */
+const SKIN_PALETTES = {
+  clasico: {
+    bg: '#000',
+    stroke: '#fff',
+    bullet: '#fff',
+    accent: '#0ff',
+    flame: 'rgba(255,130,0,0.85)',
+    hud: '#fff',
+    particle: '255,255,255',
+    glow: 0,
+  },
+  neon: {
+    bg: '#05010d',
+    stroke: '#7df9ff',
+    bullet: '#eafcff',
+    accent: '#ff37e6',
+    flame: 'rgba(255,210,63,0.9)',
+    hud: '#eafcff',
+    particle: '125,249,255',
+    glow: 8,
+  },
+  retro: {
+    bg: '#001200',
+    stroke: '#33ff66',
+    bullet: '#b6ff6b',
+    accent: '#ffcc33',
+    flame: 'rgba(255,153,51,0.9)',
+    hud: '#33ff66',
+    particle: '51,255,102',
+    glow: 6,
+  },
+};
+
+let theme = SKIN_PALETTES.clasico;
+
+// Se suscribe al mecanismo compartido: fija la paleta activa. El repintado ocurre
+// solo en el loop de animacion, asi que basta con actualizar `theme`.
+AVSkin.onChange(id => { theme = SKIN_PALETTES[id] || SKIN_PALETTES.clasico; });
+
 // ── Bullet ────────────────────────────────────────────────────────────────────
 class Bullet {
   constructor( x, y, angle ) {
@@ -57,7 +101,7 @@ class Bullet {
   }
 
   draw() {
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = theme.bullet;
     ctx.beginPath();
     ctx.arc( this.x, this.y, this.radius, 0, Math.PI * 2 );
     ctx.fill();
@@ -112,7 +156,7 @@ class Asteroid {
     ctx.save();
     ctx.translate( this.x, this.y );
     ctx.rotate( this.rot );
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = theme.stroke;
     ctx.lineWidth = 1.5;
     ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -152,12 +196,12 @@ class PowerUp {
     ctx.save();
     ctx.translate( this.x, this.y );
     ctx.rotate( Math.PI / 4 );
-    ctx.strokeStyle = '#0ff';
+    ctx.strokeStyle = theme.accent;
     ctx.lineWidth = 2;
     const r = this.radius * pulse;
     ctx.strokeRect( -r, -r, r * 2, r * 2 );
     ctx.restore();
-    ctx.fillStyle = '#0ff';
+    ctx.fillStyle = theme.accent;
     ctx.font = 'bold 12px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -234,7 +278,7 @@ class Ship {
     ctx.save();
     ctx.translate( this.x, this.y );
     ctx.rotate( this.angle );
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = theme.stroke;
     ctx.lineWidth = 1.5;
     ctx.lineJoin = 'round';
 
@@ -253,7 +297,7 @@ class Ship {
       ctx.moveTo( -8, -4 );
       ctx.lineTo( -8 - rand( 6, 14 ), 0 );
       ctx.lineTo( -8, 4 );
-      ctx.strokeStyle = 'rgba(255, 130, 0, 0.85)';
+      ctx.strokeStyle = theme.flame;
       ctx.stroke();
     }
 
@@ -284,7 +328,7 @@ class Particle {
 
   draw() {
     const alpha = this.ttl / this.life;
-    ctx.strokeStyle = `rgba(255,255,255,${ alpha.toFixed( 2 ) })`;
+    ctx.strokeStyle = `rgba(${ theme.particle },${ alpha.toFixed( 2 ) })`;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo( this.x, this.y );
@@ -439,7 +483,7 @@ function drawLifeIcon( x, y ) {
   ctx.save();
   ctx.translate( x, y );
   ctx.rotate( -Math.PI / 2 );
-  ctx.strokeStyle = '#fff';
+  ctx.strokeStyle = theme.stroke;
   ctx.lineWidth = 1.2;
   ctx.lineJoin = 'round';
   ctx.beginPath();
@@ -453,7 +497,7 @@ function drawLifeIcon( x, y ) {
 }
 
 function drawHUD() {
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = theme.hud;
   ctx.font = '15px monospace';
 
   ctx.textAlign = 'left';
@@ -467,30 +511,37 @@ function drawHUD() {
 
   if ( ship.tripleShot > 0 ) {
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#0ff';
+    ctx.fillStyle = theme.accent;
     ctx.fillText( `3x  ${ ship.tripleShot.toFixed( 1 ) }s`, 14, 46 );
   }
 }
 
 function drawOverlay( title, sub ) {
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = theme.hud;
   ctx.font = 'bold 46px monospace';
   ctx.fillText( title, W / 2, H / 2 - 18 );
   ctx.font = '18px monospace';
-  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+  ctx.globalAlpha = 0.65;
   ctx.fillText( sub, W / 2, H / 2 + 22 );
+  ctx.globalAlpha = 1;
 }
 
 function draw() {
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = theme.bg;
   ctx.fillRect( 0, 0, W, H );
+
+  // Glow de la skin (0 = sin resplandor). Se tinta con el color de trazo del juego.
+  ctx.shadowBlur = theme.glow;
+  ctx.shadowColor = theme.stroke;
 
   particles.forEach( p => p.draw() );
   asteroids.forEach( a => a.draw() );
   powerUps.forEach( p => p.draw() );
   bullets.forEach( b => b.draw() );
   ship.draw();
+
+  ctx.shadowBlur = 0;
 
   drawHUD();
 
