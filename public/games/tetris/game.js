@@ -4,17 +4,40 @@ const COLS = 10;
 const ROWS = 20;
 const BLOCK = 30;
 
-const COLORS = [
-  null,
-  '#4dd0e1', // I - cyan
-  '#ffd54f', // O - yellow
-  '#ba68c8', // T - purple
-  '#81c784', // S - green
-  '#e57373', // Z - red
-  '#90caf9', // J - pale blue
-  '#ffb74d', // L - orange
-  '#9e9e9e', // N - tuerca (gris metálico)
-];
+/* Paletas del canvas por skin. Índices 1..8 = I, O, T, S, Z, J, L, N (tuerca).
+ * El mecanismo (selección/persistencia/botón) es compartido y vive en
+ * ../_shared/skins.js; aquí solo se declaran los COLORES que Tetris dibuja.
+ * `grid` es la línea de la rejilla; `highlight` el brillo superior del bloque;
+ * `glow` el radio de resplandor (0 = sin glow) para la skin neon. */
+const SKIN_PALETTES = {
+  clasico: {
+    grid: '#22222e',
+    highlight: 'rgba(255,255,255,0.12)',
+    glow: 0,
+    pieces: [null, '#4dd0e1', '#ffd54f', '#ba68c8', '#81c784', '#e57373', '#90caf9', '#ffb74d', '#9e9e9e'],
+  },
+  neon: {
+    grid: '#1a0a2e',
+    highlight: 'rgba(255,255,255,0.28)',
+    glow: 12,
+    pieces: [null, '#00f0ff', '#fff338', '#d900ff', '#00ff85', '#ff003c', '#2b6bff', '#ff9d00', '#c0b0ff'],
+  },
+  retro: {
+    grid: '#2e2416',
+    highlight: 'rgba(255,220,150,0.14)',
+    glow: 0,
+    pieces: [null, '#4ea1a1', '#d9a441', '#b06fa0', '#6fa86f', '#c56b5c', '#5f7fa8', '#d98c4a', '#9a8f7a'],
+  },
+};
+
+let theme = SKIN_PALETTES.clasico;
+
+// Se suscribe al mecanismo compartido: fija la paleta y repinta si el juego ya arrancó.
+AVSkin.onChange(id => {
+  theme = SKIN_PALETTES[id] || SKIN_PALETTES.clasico;
+  if (typeof board !== 'undefined' && board) draw();
+  if (typeof next !== 'undefined' && next) drawNext();
+});
 
 const PIECES = [
   null,
@@ -161,18 +184,24 @@ function updateHUD() {
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
-  const color = COLORS[colorIndex];
+  const color = theme.pieces[colorIndex];
   context.globalAlpha = alpha ?? 1;
+  // Glow de la skin neon: resplandor del propio color del bloque.
+  if (theme.glow) {
+    context.shadowColor = color;
+    context.shadowBlur = theme.glow;
+  }
   context.fillStyle = color;
   context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+  context.shadowBlur = 0;
   // highlight
-  context.fillStyle = 'rgba(255,255,255,0.12)';
+  context.fillStyle = theme.highlight;
   context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
   context.globalAlpha = 1;
 }
 
 function drawGrid() {
-  ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-line').trim();
+  ctx.strokeStyle = theme.grid;
   ctx.lineWidth = 0.5;
   for (let c = 1; c < COLS; c++) {
     ctx.beginPath();
@@ -309,30 +338,9 @@ document.addEventListener('keydown', e => {
 
 restartBtn.addEventListener('click', init);
 
-const themeToggle = document.getElementById('theme-toggle');
-const toggleIcon = themeToggle.querySelector('.toggle-icon');
-const toggleLabel = themeToggle.querySelector('.toggle-label');
-
-function applyTheme(isLight) {
-  if (isLight) {
-    document.body.classList.add('light-mode');
-    toggleIcon.textContent = '☀';
-    toggleLabel.textContent = 'DARK';
-  } else {
-    document.body.classList.remove('light-mode');
-    toggleIcon.textContent = '☾';
-    toggleLabel.textContent = 'LIGHT';
-  }
-}
-
-const savedTheme = localStorage.getItem('tetris-theme');
-applyTheme(savedTheme === 'light');
-
-themeToggle.addEventListener('click', () => {
-  const isLight = !document.body.classList.contains('light-mode');
-  applyTheme(isLight);
-  localStorage.setItem('tetris-theme', isLight ? 'light' : 'dark');
-});
+/* El conmutador de skins (botón, persistencia, ciclo clasico→neon→retro) lo
+ * provee ../_shared/skins.js. Este juego solo declara SKIN_PALETTES arriba y se
+ * suscribe con AVSkin.onChange; no reimplementa el conmutador. */
 
 // ── Puente con la plataforma (postMessage) ──────────────────────────────────────
 /* Contrato espejado en app/lib/games/bridge.ts (spec 05).

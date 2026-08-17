@@ -4,7 +4,11 @@
   padding: 0;
 }
 
-:root {
+/* Cromo del DOM por skin. La selección la hace _shared/skins.js con
+ * <body data-skin="…">. Los colores del canvas (piezas, rejilla) NO están aquí:
+ * viven en el objeto SKIN_PALETTES de game.js, porque el CSS no pinta píxeles
+ * dentro de un <canvas>. clasico es el default. */
+body[data-skin="clasico"] {
   --bg: #0f0f17;
   --text: #e0e0e0;
   --canvas-bg: #1a1a25;
@@ -15,27 +19,38 @@
   --kbd-border: #3a3a5a;
   --kbd-text: #aaa;
   --overlay-bg: rgba(10, 10, 20, 0.75);
-  --grid-line: #22222e;
-  --toggle-bg: #22223a;
-  --toggle-border: #3a3a5a;
-  --toggle-text: #aaa;
+  --accent: #7aa2f7;
+  --danger: #e57373;
 }
 
-body.light-mode {
-  --bg: #f0f0f8;
-  --text: #1a1a2e;
-  --canvas-bg: #e4e4f0;
-  --border: #b0b0c8;
-  --label: #6060a0;
-  --controls-text: #404060;
-  --kbd-bg: #dcdcf0;
-  --kbd-border: #9090b8;
-  --kbd-text: #3a3a6a;
-  --overlay-bg: rgba(210, 210, 230, 0.85);
-  --grid-line: #c8c8dc;
-  --toggle-bg: #dcdcf0;
-  --toggle-border: #9090b8;
-  --toggle-text: #3a3a6a;
+body[data-skin="neon"] {
+  --bg: #05010d;
+  --text: #f0e6ff;
+  --canvas-bg: #0a0518;
+  --border: #2a1240;
+  --label: #7a5a9a;
+  --controls-text: #a98fce;
+  --kbd-bg: #1a0a2e;
+  --kbd-border: #5a2a6a;
+  --kbd-text: #d0b8f0;
+  --overlay-bg: rgba(8, 2, 18, 0.8);
+  --accent: #ff2bd6;
+  --danger: #ff416c;
+}
+
+body[data-skin="retro"] {
+  --bg: #1a1410;
+  --text: #ffe9b0;
+  --canvas-bg: #14100a;
+  --border: #3a2e18;
+  --label: #8a7a52;
+  --controls-text: #b8a67a;
+  --kbd-bg: #241c10;
+  --kbd-border: #5a4a2a;
+  --kbd-text: #e0cf9a;
+  --overlay-bg: rgba(20, 14, 8, 0.82);
+  --accent: #ffcf4d;
+  --danger: #e0765c;
 }
 
 body {
@@ -58,41 +73,13 @@ body {
   gap: 16px;
 }
 
-.theme-toggle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: var(--toggle-bg);
-  border: 1px solid var(--toggle-border);
-  border-radius: 20px;
-  padding: 4px 12px;
-  font-size: 13px;
-  font-family: 'Courier New', Courier, monospace;
-  color: var(--toggle-text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.25s, color 0.25s, border-color 0.25s;
-  letter-spacing: 1px;
-}
-
-.theme-toggle:hover {
-  border-color: #7aa2f7;
-  color: #7aa2f7;
-}
-
-.theme-toggle .toggle-icon {
-  font-size: 15px;
-}
-
 .game-title {
   font-family: 'Courier New', Courier, monospace;
   font-size: 36px;
   font-weight: 900;
   letter-spacing: 10px;
-  color: #7aa2f7;
-  text-shadow: 0 0 20px rgba(122, 162, 247, 0.5);
+  color: var(--accent);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
   text-transform: uppercase;
   margin: 0;
 }
@@ -139,7 +126,7 @@ body {
   font-family: 'Courier New', Courier, monospace;
   font-size: 26px;
   font-weight: 700;
-  color: #7aa2f7;
+  color: var(--accent);
   letter-spacing: 1px;
 }
 
@@ -208,19 +195,19 @@ kbd {
   font-size: 28px;
   font-weight: 800;
   letter-spacing: 4px;
-  color: #e57373;
+  color: var(--danger);
 }
 
 #overlay-score {
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
-  color: #7aa2f7;
+  color: var(--accent);
 }
 
 #restart-btn {
   margin-top: 8px;
-  background: #7aa2f7;
-  color: #0f0f17;
+  background: var(--accent);
+  color: var(--bg);
   border: none;
   border-radius: 6px;
   padding: 10px 28px;
@@ -228,9 +215,9 @@ kbd {
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 1px;
-  transition: background 0.15s;
+  transition: filter 0.15s;
 }
 
 #restart-btn:hover {
-  background: #9bbdff;
+  filter: brightness(1.2);
 }
