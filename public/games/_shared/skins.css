@@ -1,0 +1,58 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Arcade Vault — estilos compartidos del conmutador de skins (FUENTE ÚNICA).
+ *
+ * Aquí vive SOLO el botón flotante que inyecta skins.js y sus tokens (variables CSS) por skin. La paleta del juego en sí (fondo, canvas, HUD) la define cada juego en su propia hoja o en su objeto de tema JS. Este archivo no pinta el juego; solo el control común de conmutación, para que se vea coherente en todos.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+.av-skin-switch {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: var(--av-switch-bg);
+  border: 1px solid var(--av-switch-border);
+  color: var(--av-switch-text);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.av-skin-switch:hover {
+  border-color: var(--av-switch-accent);
+  color: var(--av-switch-accent);
+}
+
+.av-skin-icon {
+  font-size: 11px;
+  color: var(--av-switch-accent);
+}
+
+/* Tokens del conmutador por skin. Genéricos: legibles sobre cualquier juego. */
+body[data-skin="clasico"] {
+  --av-switch-accent: #7aa2f7;
+  --av-switch-bg: rgba(20, 20, 30, 0.75);
+  --av-switch-border: #3a3a5a;
+  --av-switch-text: #cfcfe6;
+}
+
+body[data-skin="neon"] {
+  --av-switch-accent: #ff2bd6;
+  --av-switch-bg: rgba(10, 2, 20, 0.72);
+  --av-switch-border: #5a2a6a;
+  --av-switch-text: #f0e6ff;
+}
+
+body[data-skin="retro"] {
+  --av-switch-accent: #ffcf4d;
+  --av-switch-bg: rgba(20, 16, 8, 0.72);
+  --av-switch-border: #5a4a2a;
+  --av-switch-text: #ffe9b0;
+}
