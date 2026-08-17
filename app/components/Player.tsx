@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import type { Game } from "../data/games";
 import { useAuth } from "../context/AuthContext";
 import { isGameToHost, type HostToGame } from "../lib/games/bridge";
+import { saveScore } from "../lib/scores";
+
+// Clave de localStorage (almacén del navegador) donde recordamos el nombre del jugador (REQ-11 / D-03).
+const NAME_KEY = "av_player_name";
 
 export default function Player({ game }: { game: Game }) {
   const router = useRouter();
@@ -21,6 +25,36 @@ export default function Player({ game }: { game: Game }) {
   const [over, setOver] = useState(false);
   const [name, setName] = useState(user ? user.name : "INVITADO");
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  /* REQ-11: pre-rellena el nombre desde localStorage al abrir el modal de fin. Se lee en el handler (no en un useEffect) para no provocar hydration mismatch en el SSR ni disparar la regla react-hooks/set-state-in-effect. */
+  const prefillName = () => {
+    try {
+      const stored = localStorage.getItem(NAME_KEY);
+      if (stored) setName(stored);
+    } catch {
+      // localStorage puede no estar disponible (modo privado): degradar sin romper.
+    }
+  };
+
+  // REQ-08/09/11: guarda el score vía Server Action; si va bien, persiste el nombre y muestra éxito; si falla, muestra el error sin fingir éxito.
+  const handleSave = async () => {
+    setSaveError(null);
+    setSaving(true);
+    const res = await saveScore(game.id, name, score);
+    setSaving(false);
+    if (res.ok) {
+      try {
+        localStorage.setItem(NAME_KEY, name.trim().toUpperCase().slice(0, 10));
+      } catch {
+        // Ignorado: el guardado en la base de datos sí ocurrió.
+      }
+      setSaved(true);
+    } else {
+      setSaveError(res.error);
+    }
+  };
 
   // Envía un comando al juego embebido (solo tras el handshake `ready` y al mismo origen).
   const post = (msg: HostToGame) => {
@@ -53,6 +87,7 @@ export default function Player({ game }: { game: Game }) {
           break;
         case "gameover":
           setScore(msg.score);
+          prefillName();
           setOver(true);
           break;
       }
@@ -85,6 +120,7 @@ export default function Player({ game }: { game: Game }) {
 
   const endGame = () => {
     if (embed) post({ type: "pause" }); // congela el juego del iframe detrás del modal
+    prefillName();
     setOver(true);
   };
 
@@ -96,6 +132,7 @@ export default function Player({ game }: { game: Game }) {
     setPaused(false);
     setOver(false);
     setSaved(false);
+    setSaveError(null);
   };
 
   return (
@@ -184,16 +221,24 @@ export default function Player({ game }: { game: Game }) {
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{score.toLocaleString("es-ES")}</div>
             {!saved ? (
-              <div className="input-row">
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 10))}
-                  placeholder="TUS INICIALES"
-                />
-                <button className="btn yellow" onClick={() => setSaved(true)}>
-                  GUARDAR PUNTUACIÓN
-                </button>
-              </div>
+              <>
+                <div className="input-row">
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 10))}
+                    placeholder="TUS INICIALES"
+                    disabled={saving}
+                  />
+                  <button className="btn yellow" onClick={handleSave} disabled={saving}>
+                    {saving ? "GUARDANDO…" : "GUARDAR PUNTUACIÓN"}
+                  </button>
+                </div>
+                {saveError && (
+                  <div className="mono mt-2 text-[11px] tracking-[0.12em] text-[color:var(--magenta)]">
+                    ▸ {saveError}
+                  </div>
+                )}
+              </>
             ) : (
               <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
             )}
