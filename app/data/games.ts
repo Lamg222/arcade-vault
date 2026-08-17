@@ -151,6 +151,18 @@ export const GAMES: Game[] = [
     plays: "0",
     embed: "/games/snake/index.html",
   },
+  {
+    id: "salta-carril",
+    title: "SALTA CARRIL",
+    short: "Cruza el tráfico y el río contra reloj sin morir.",
+    long: "El arcade clásico de reflejos: guía a la rana desde la acera hasta los cinco nidos de la orilla, esquivando cinco carriles de coches y camiones a distinta velocidad y saltando sobre troncos y tortugas que van a la deriva — ojo, algunas tortugas se sumergen. Un cronómetro presiona cada travesía: su remanente suma bonus, agotarlo cuesta una vida. Llena los cinco nidos para subir de nivel y que todo acelere. Tres vidas, puro timing.",
+    cat: "ARCADE",
+    cover: "cover-rana",
+    color: "green",
+    best: 0,
+    plays: "0",
+    embed: "/games/salta-carril/index.html",
+  },
 ];
 
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"];
