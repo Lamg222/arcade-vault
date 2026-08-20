@@ -1,6 +1,6 @@
 # 08 — Juego táctil en móvil vía IP local
 
-- **Estado:** Approved
+- **Estado:** Implemented
 - **Fecha:** 2026-08-20
 - **Dependencias:** 01-mvp-visual-pantallas (componente `Player`), 05-juego-asteroides (patrón iframe — marco HTML aislado — + puente `postMessage` — mensajería entre iframe y página), y los juegos embebidos existentes (`asteroides`, `tetris`, `arkanoid`, `snake`, `salta-carril`)
 - **Objetivo (una frase):** Hacer jugables los 5 juegos embebidos desde un dispositivo móvil táctil en la red local: el servidor de desarrollo se expone por la IP local (`192.168.100.63`, documentada y configurada en `next.config.ts` vía `allowedDevOrigins` — lista blanca de orígenes externos que Next.js 16 acepta en desarrollo), y bajo el breakpoint `md` de Tailwind (768px) el reproductor cambia a layout vertical — canvas (lienzo del juego) arriba, gamepad táctil abajo con cruceta de 4 flechas + botones A/B + pausa, HUD del host oculto — que sintetiza eventos de teclado (genera programáticamente las mismas señales que teclas físicas) hacia el iframe, sin modificar ningún `game.js`.

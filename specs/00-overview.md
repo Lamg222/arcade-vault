@@ -12,6 +12,9 @@
 | 03 | About real y contacto por email con Resend         | Implemented | 02                      | about-y-contacto-resend | —          |
 | 04 | Integración base de Supabase (clientes browser+server) | Implemented | 01, 03              | integracion-supabase    | —          |
 | 05 | Juego Asteroides embebido y puenteado                  | Implemented | 01                  | juego-asteroides        | —          |
+| 06 | Leaderboard con Supabase y tabla de juegos             | Approved    | 04, 01, 05          | leaderboard-supabase    | pii        |
+| 07 | Juego Frogger embebido y puenteado                     | Obsolete    | 05, 06              | juego-frogger           | —          |
+| 08 | Juego táctil en móvil vía IP local                     | Implemented | 01, 05              | movil-tactil-ip-local   | —          |
 
 ## Mapa de dependencias
 
