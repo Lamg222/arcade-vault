@@ -27,8 +27,3 @@ Heed deprecation notices in those docs.
 
 Arcade Vault is a platform to play games online and compete for the highest score (see `README.md`). The project follows Spec Driven Design using the `/spec` and `/spec-impl` skills (from `Klerith/fernando-skills`).
 
-
-## Style
-
-Utiliza /frontend-desing para hacer los cambios en la interfaz de usuario.
-
