@@ -676,6 +676,72 @@ a { color: inherit; text-decoration: none; }
   background: var(--green); box-shadow: 0 0 6px var(--green);
 }
 
+/* ===== gamepad táctil (spec 08) — solo móvil, ver media query abajo ===== */
+.touch-controls {
+  display: none;
+  touch-action: none; /* REQ-10: sin zoom por doble toque, sin scroll ni pull-to-refresh sobre el gamepad */
+  user-select: none;
+  -webkit-user-select: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+  background: var(--bg-2);
+  border-top: 1px solid var(--line);
+}
+.tc-btn {
+  font-family: var(--pixel);
+  color: var(--cyan);
+  background: #10101a;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-width: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 0 6px rgba(0, 245, 255, 0.5);
+  touch-action: none;
+}
+.tc-btn:active {
+  background: #1c1c2c;
+  box-shadow: inset 0 0 12px rgba(0, 245, 255, 0.35);
+}
+.tc-dpad {
+  display: grid;
+  grid-template-areas: ". up ." "left . right" ". down .";
+  grid-template-columns: 52px 52px 52px;
+  grid-template-rows: 52px 52px 52px;
+  gap: 4px;
+}
+.tc-up { grid-area: up; }
+.tc-left { grid-area: left; }
+.tc-right { grid-area: right; }
+.tc-down { grid-area: down; }
+.tc-dir { font-size: 16px; }
+.tc-pause {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  text-shadow: 0 0 6px rgba(245, 255, 0, 0.5);
+  padding: 0 12px;
+}
+.tc-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tc-action {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+.tc-a {
+  color: var(--magenta);
+  text-shadow: 0 0 6px rgba(255, 0, 110, 0.5);
+}
+
 /* fake in-screen game */
 .game-arena {
   position: absolute; inset: 0;
