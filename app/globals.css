@@ -676,71 +676,132 @@ a { color: inherit; text-decoration: none; }
   background: var(--green); box-shadow: 0 0 6px var(--green);
 }
 
-/* ===== gamepad táctil (spec 08) — solo móvil, ver media query abajo ===== */
+/* ===== gamepad táctil MK-II (spec 08; diseño de references/gamepad-assets) — solo móvil, ver media query al final ===== */
 .touch-controls {
-  display: none;
+  display: none; /* la media query <768px del final del archivo lo enciende */
   touch-action: none; /* REQ-10: sin zoom por doble toque, sin scroll ni pull-to-refresh sobre el gamepad */
   user-select: none;
   -webkit-user-select: none;
+  position: relative;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
-  background: var(--bg-2);
-  border-top: 1px solid var(--line);
-}
-.tc-btn {
-  font-family: var(--pixel);
-  color: var(--cyan);
-  background: #10101a;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  min-width: 48px;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-shadow: 0 0 6px rgba(0, 245, 255, 0.5);
-  touch-action: none;
-}
-.tc-btn:active {
-  background: #1c1c2c;
-  box-shadow: inset 0 0 12px rgba(0, 245, 255, 0.35);
-}
-.tc-dpad {
-  display: grid;
-  grid-template-areas: ". up ." "left . right" ". down .";
-  grid-template-columns: 52px 52px 52px;
-  grid-template-rows: 52px 52px 52px;
-  gap: 4px;
-}
-.tc-up { grid-area: up; }
-.tc-left { grid-area: left; }
-.tc-right { grid-area: right; }
-.tc-down { grid-area: down; }
-.tc-dir { font-size: 16px; }
-.tc-pause {
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  color: var(--yellow);
-  text-shadow: 0 0 6px rgba(245, 255, 0, 0.5);
-  padding: 0 12px;
-}
-.tc-actions {
-  display: flex;
-  align-items: center;
   gap: 14px;
+  margin: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  padding: 14px 18px;
+  background: linear-gradient(180deg, #1c1c28 0%, #0c0c14 100%);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow:
+    0 20px 60px -30px rgba(0, 245, 255, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6);
 }
+.touch-controls::before {
+  content: ""; position: absolute; inset: 4px;
+  border: 1px solid rgba(0, 245, 255, 0.14);
+  border-radius: 18px; pointer-events: none;
+}
+.touch-controls::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+  border-radius: inherit; pointer-events: none; opacity: 0.6;
+}
+
+/* Cruceta */
+.tc-dpad { position: relative; z-index: 1; width: 144px; height: 144px; flex: none; }
+.tc-dir {
+  position: absolute;
+  width: 46px; height: 46px;
+  background: linear-gradient(180deg, #1a1a25, #0a0a12);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: var(--ink-dim);
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  touch-action: none;
+  box-shadow: 0 4px 0 #050507, inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -2px 4px rgba(0, 0, 0, 0.6);
+  transition: transform 80ms, box-shadow 140ms, color 140ms, border-color 140ms, background 140ms;
+}
+.tc-dir svg { width: 20px; height: 20px; }
+.tc-dir:active {
+  transform: translateY(3px);
+  color: var(--cyan);
+  background: linear-gradient(180deg, #08161e, #030a0e);
+  border-color: var(--cyan);
+  box-shadow: 0 1px 0 #050507, inset 0 0 16px rgba(0, 245, 255, 0.45), 0 0 16px rgba(0, 245, 255, 0.5);
+}
+.tc-dir:active svg { filter: drop-shadow(0 0 6px var(--cyan)) drop-shadow(0 0 12px var(--cyan)); }
+.tc-up { top: 0; left: 49px; }
+.tc-down { bottom: 0; left: 49px; }
+.tc-left { left: 0; top: 49px; }
+.tc-right { right: 0; top: 49px; }
+.tc-hub {
+  position: absolute; top: 49px; left: 49px;
+  width: 46px; height: 46px;
+  background: radial-gradient(circle at 50% 50%, #181822 0%, #08080d 80%);
+  border: 1px solid rgba(0, 245, 255, 0.15);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.tc-hub-gem {
+  width: 12px; height: 12px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan), inset 0 0 4px rgba(0, 0, 0, 0.5);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  animation: pulse-led 2s ease-in-out infinite;
+}
+@keyframes pulse-led { 50% { opacity: 0.35; transform: scale(0.85); } }
+
+/* Pausa (pastilla central) */
+.tc-pause {
+  z-index: 1;
+  font-family: var(--pixel); font-size: 8px; letter-spacing: 0.12em;
+  color: var(--yellow); text-shadow: 0 0 6px rgba(245, 255, 0, 0.5);
+  background: linear-gradient(180deg, #1a1a25, #0a0a12);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  min-height: 44px; padding: 0 14px;
+  touch-action: none;
+  box-shadow: 0 3px 0 #050507, inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 80ms, box-shadow 140ms, border-color 140ms;
+}
+.tc-pause:active {
+  transform: translateY(2px);
+  border-color: var(--yellow);
+  box-shadow: 0 1px 0 #050507, 0 0 14px rgba(245, 255, 0, 0.35);
+}
+
+/* Botones A/B */
+.tc-actions { position: relative; z-index: 1; display: grid; grid-template-columns: auto auto; gap: 16px; align-items: center; }
 .tc-action {
-  width: 62px;
-  height: 62px;
+  position: relative;
+  width: 64px; height: 64px;
   border-radius: 50%;
-  font-size: 18px;
+  border: 2px solid currentColor;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.25), transparent 50%),
+    radial-gradient(circle at 50% 55%, var(--ab-mid), var(--ab-deep) 75%);
+  padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none;
+  box-shadow: 0 6px 0 #050507, 0 0 22px var(--ab-glow), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -4px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 80ms, box-shadow 140ms;
 }
-.tc-a {
-  color: var(--magenta);
-  text-shadow: 0 0 6px rgba(255, 0, 110, 0.5);
+.tc-a { color: var(--magenta); --ab-mid: rgba(255, 0, 110, 0.7); --ab-deep: rgba(110, 0, 40, 0.95); --ab-glow: rgba(255, 0, 110, 0.4); }
+.tc-b { color: var(--cyan); --ab-mid: rgba(0, 200, 230, 0.7); --ab-deep: rgba(0, 50, 70, 0.95); --ab-glow: rgba(0, 245, 255, 0.4); }
+.tc-letter { font-family: var(--pixel); font-size: 20px; color: #fff; position: relative; z-index: 2; }
+.tc-a .tc-letter { text-shadow: 0 0 8px var(--magenta), 0 0 18px var(--magenta), 0 1px 0 rgba(0, 0, 0, 0.6); }
+.tc-b .tc-letter { text-shadow: 0 0 8px var(--cyan), 0 0 18px var(--cyan), 0 1px 0 rgba(0, 0, 0, 0.6); }
+.tc-ring {
+  position: absolute; inset: -8px;
+  border-radius: 50%;
+  border: 1px dashed currentColor;
+  opacity: 0; transition: opacity 140ms, transform 200ms;
 }
+.tc-action:active { transform: translateY(4px) scale(0.97); box-shadow: 0 1px 0 #050507, 0 0 36px var(--ab-glow), inset 0 0 18px rgba(0, 0, 0, 0.5); }
+.tc-action:active .tc-ring { opacity: 1; transform: scale(1.08); }
 
 /* fake in-screen game */
 .game-arena {

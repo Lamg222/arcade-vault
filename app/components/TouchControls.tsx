@@ -75,10 +75,18 @@ export default function TouchControls({ iframeRef, paused, onTogglePause }: Prop
     };
   }, []);
 
-  const pad = (dir: keyof typeof DIRS, glyph: string, cls: string) => (
+  /* Flechas de la cruceta (triángulos SVG del diseño MK-II de references/gamepad-assets). */
+  const ARROWS: Record<keyof typeof DIRS, string> = {
+    up: "M12 4 L20 16 L4 16 Z",
+    right: "M8 4 L20 12 L8 20 Z",
+    down: "M4 8 L20 8 L12 20 Z",
+    left: "M16 4 L16 20 L4 12 Z",
+  };
+
+  const pad = (dir: keyof typeof DIRS, cls: string) => (
     <button
       type="button"
-      className={`tc-btn tc-dir ${cls}`}
+      className={`tc-dir ${cls}`}
       aria-label={dir}
       onPointerDown={press(DIRS[dir], true)}
       onPointerUp={release(DIRS[dir])}
@@ -86,43 +94,52 @@ export default function TouchControls({ iframeRef, paused, onTogglePause }: Prop
       onPointerLeave={release(DIRS[dir])}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {glyph}
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d={ARROWS[dir]} fill="currentColor" />
+      </svg>
     </button>
   );
 
   return (
-    <div className="touch-controls" aria-hidden={false}>
-      <div className="tc-dpad">
-        {pad("up", "▲", "tc-up")}
-        {pad("left", "◀", "tc-left")}
-        {pad("right", "▶", "tc-right")}
-        {pad("down", "▼", "tc-down")}
+    <div className="touch-controls" role="group" aria-label="Gamepad">
+      <div className="tc-dpad" aria-label="D-pad">
+        {pad("up", "tc-up")}
+        {pad("right", "tc-right")}
+        {pad("down", "tc-down")}
+        {pad("left", "tc-left")}
+        <div className="tc-hub" aria-hidden="true">
+          <span className="tc-hub-gem" />
+        </div>
       </div>
-      <button type="button" className="tc-btn tc-pause" onClick={onTogglePause}>
+      <button type="button" className="tc-pause" onClick={onTogglePause}>
         {paused ? "REANUDAR" : "PAUSA"}
       </button>
       <div className="tc-actions">
         <button
           type="button"
-          className="tc-btn tc-action tc-b"
+          className="tc-action tc-b"
+          aria-label="B"
           onPointerDown={press(ACTION_B, false)}
           onPointerUp={release(ACTION_B)}
           onPointerCancel={release(ACTION_B)}
           onPointerLeave={release(ACTION_B)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          B
+          <span className="tc-ring" />
+          <span className="tc-letter">B</span>
         </button>
         <button
           type="button"
-          className="tc-btn tc-action tc-a"
+          className="tc-action tc-a"
+          aria-label="A"
           onPointerDown={press(ACTION_A, false)}
           onPointerUp={release(ACTION_A)}
           onPointerCancel={release(ACTION_A)}
           onPointerLeave={release(ACTION_A)}
           onContextMenu={(e) => e.preventDefault()}
         >
-          A
+          <span className="tc-ring" />
+          <span className="tc-letter">A</span>
         </button>
       </div>
     </div>
