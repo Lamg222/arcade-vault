@@ -1,6 +1,6 @@
 # 07 — Juego Frogger (cruce de carriles) embebido y puenteado
 
-- **Estado:** Draft (spec listo para construir)
+- **Estado:** Obsolete — el género y la mecánica que este spec proponía ya existen en el catálogo: `salta-carril` (game-jam, 2026-08) es un frogger completo (5 nidos, 5 carriles, troncos/tortugas, cronómetro, 3 vidas). Implementarlo duplicaría juego, portada y color. Si se quiere el clásico fiel como título aparte, redefinirlo con identidad propia en un spec nuevo.
 - **Fecha:** 2026-08-17
 - **Dependencias:** 05-juego-asteroides (patrón de embed iframe + puente `postMessage`), 06-leaderboard-supabase (tabla `scores`, FK `game_id → games.id`, `saveScore`)
 - **Objetivo (una frase):** Añadir a Arcade Vault un juego canvas nuevo de tipo *cruce de carriles* (Frogger), de id `frogger`, construido de cero (no hay juego de referencia — como se hizo con `snake`), embebido en un iframe (marco HTML aislado) servido desde `public/games/frogger/`, con el puente `postMessage` (mensajería entre iframe y página) bidireccional ya genérico: el juego emite score/vidas/nivel/game-over al HUD (barra de estado) React y recibe pause/resume/restart del contenedor.
