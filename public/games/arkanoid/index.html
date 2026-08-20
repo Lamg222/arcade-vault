@@ -2,11 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Arkanoid</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #2d2d2d; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    canvas { display: block; }
+    /* En móvil el canvas encoge para caber en el iframe preservando proporción; en escritorio nunca excede su tamaño natural (800x600). */
+    canvas { display: block; max-width: 100vw; max-height: 100dvh; width: auto; height: auto; }
   </style>
 </head>
 <body>
