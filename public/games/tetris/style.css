@@ -237,3 +237,28 @@ kbd {
 #restart-btn:hover {
   filter: brightness(1.2);
 }
+
+/* ---- Móvil (spec 08): tablero arriba a todo lo que quepa, panel compacto debajo; las ayudas de teclado no aplican en táctil. ---- */
+@media (max-width: 767px) {
+  .game-title { display: none; }
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  #board {
+    height: min(72dvh, 600px);
+    width: auto;
+    max-width: 96vw;
+  }
+  .panel {
+    width: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding-top: 0;
+  }
+  .panel .value { font-size: 18px; }
+  #next-canvas { width: 56px; height: 56px; }
+  .panel-section.controls { display: none; }
+}
