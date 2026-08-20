@@ -683,11 +683,15 @@ a { color: inherit; text-decoration: none; }
   user-select: none;
   -webkit-user-select: none;
   position: relative;
+  /* Perillas de tamaño del gamepad: --dp = lado de cada tecla de la cruceta, --ab = diámetro de A/B. Todo lo demás (área de la cruceta, posiciones, letras) se deriva por calc(), así que ajustar el tamaño es tocar solo estos dos valores. */
+  --dp: 40px;
+  --dp-gap: 3px;
+  --ab: 52px;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  margin: 8px 8px calc(8px + env(safe-area-inset-bottom));
-  padding: 14px 18px;
+  gap: 10px;
+  margin: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  padding: 10px 14px;
   background: linear-gradient(180deg, #1c1c28 0%, #0c0c14 100%);
   border: 1px solid var(--line);
   border-radius: 22px;
@@ -710,10 +714,14 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Cruceta */
-.tc-dpad { position: relative; z-index: 1; width: 144px; height: 144px; flex: none; }
+.tc-dpad {
+  position: relative; z-index: 1; flex: none;
+  width: calc(var(--dp) * 3 + var(--dp-gap) * 2);
+  height: calc(var(--dp) * 3 + var(--dp-gap) * 2);
+}
 .tc-dir {
   position: absolute;
-  width: 46px; height: 46px;
+  width: var(--dp); height: var(--dp);
   background: linear-gradient(180deg, #1a1a25, #0a0a12);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
@@ -723,7 +731,7 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 4px 0 #050507, inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -2px 4px rgba(0, 0, 0, 0.6);
   transition: transform 80ms, box-shadow 140ms, color 140ms, border-color 140ms, background 140ms;
 }
-.tc-dir svg { width: 20px; height: 20px; }
+.tc-dir svg { width: 45%; height: 45%; }
 .tc-dir:active {
   transform: translateY(3px);
   color: var(--cyan);
@@ -732,13 +740,15 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 1px 0 #050507, inset 0 0 16px rgba(0, 245, 255, 0.45), 0 0 16px rgba(0, 245, 255, 0.5);
 }
 .tc-dir:active svg { filter: drop-shadow(0 0 6px var(--cyan)) drop-shadow(0 0 12px var(--cyan)); }
-.tc-up { top: 0; left: 49px; }
-.tc-down { bottom: 0; left: 49px; }
-.tc-left { left: 0; top: 49px; }
-.tc-right { right: 0; top: 49px; }
+.tc-up { top: 0; left: calc(var(--dp) + var(--dp-gap)); }
+.tc-down { bottom: 0; left: calc(var(--dp) + var(--dp-gap)); }
+.tc-left { left: 0; top: calc(var(--dp) + var(--dp-gap)); }
+.tc-right { right: 0; top: calc(var(--dp) + var(--dp-gap)); }
 .tc-hub {
-  position: absolute; top: 49px; left: 49px;
-  width: 46px; height: 46px;
+  position: absolute;
+  top: calc(var(--dp) + var(--dp-gap));
+  left: calc(var(--dp) + var(--dp-gap));
+  width: var(--dp); height: var(--dp);
   background: radial-gradient(circle at 50% 50%, #181822 0%, #08080d 80%);
   border: 1px solid rgba(0, 245, 255, 0.15);
   border-radius: 6px;
@@ -762,7 +772,7 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(180deg, #1a1a25, #0a0a12);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
-  min-height: 44px; padding: 0 14px;
+  min-height: 40px; padding: 0 12px;
   touch-action: none;
   box-shadow: 0 3px 0 #050507, inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transition: transform 80ms, box-shadow 140ms, border-color 140ms;
@@ -774,10 +784,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Botones A/B */
-.tc-actions { position: relative; z-index: 1; display: grid; grid-template-columns: auto auto; gap: 16px; align-items: center; }
+.tc-actions { position: relative; z-index: 1; display: grid; grid-template-columns: auto auto; gap: 12px; align-items: center; }
 .tc-action {
   position: relative;
-  width: 64px; height: 64px;
+  width: var(--ab); height: var(--ab);
   border-radius: 50%;
   border: 2px solid currentColor;
   background:
@@ -791,11 +801,11 @@ a { color: inherit; text-decoration: none; }
 }
 .tc-a { color: var(--magenta); --ab-mid: rgba(255, 0, 110, 0.7); --ab-deep: rgba(110, 0, 40, 0.95); --ab-glow: rgba(255, 0, 110, 0.4); }
 .tc-b { color: var(--cyan); --ab-mid: rgba(0, 200, 230, 0.7); --ab-deep: rgba(0, 50, 70, 0.95); --ab-glow: rgba(0, 245, 255, 0.4); }
-.tc-letter { font-family: var(--pixel); font-size: 20px; color: #fff; position: relative; z-index: 2; }
+.tc-letter { font-family: var(--pixel); font-size: calc(var(--ab) * 0.3); color: #fff; position: relative; z-index: 2; }
 .tc-a .tc-letter { text-shadow: 0 0 8px var(--magenta), 0 0 18px var(--magenta), 0 1px 0 rgba(0, 0, 0, 0.6); }
 .tc-b .tc-letter { text-shadow: 0 0 8px var(--cyan), 0 0 18px var(--cyan), 0 1px 0 rgba(0, 0, 0, 0.6); }
 .tc-ring {
-  position: absolute; inset: -8px;
+  position: absolute; inset: -6px;
   border-radius: 50%;
   border: 1px dashed currentColor;
   opacity: 0; transition: opacity 140ms, transform 200ms;
@@ -1079,8 +1089,15 @@ a { color: inherit; text-decoration: none; }
   .av-player { max-width: none; margin: 0; padding: 0; }
   .player-hud { display: none; }
   .crt { border-radius: 0; padding: 10px; box-shadow: none; touch-action: none; }
-  .crt-screen { aspect-ratio: auto; height: calc(100dvh - 280px); min-height: 300px; touch-action: none; }
+  .crt-screen { aspect-ratio: auto; height: calc(100dvh - 240px); min-height: 300px; touch-action: none; }
   .crt-bottom { display: none; }
+  /* Modal de fin de juego: en pantalla angosta la fila input+botón no cabe en horizontal; en columna cada control ocupa el ancho completo y es fácil de tocar. */
+  .modal { padding: 22px 16px; }
+  .modal h2 { font-size: 18px; }
+  .modal .final { font-size: 28px; }
+  .modal .input-row { flex-direction: column; }
+  .modal .input-row .btn,
+  .modal .actions .btn { width: 100%; }
 }
 
 /* tweaks */
