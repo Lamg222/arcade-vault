@@ -6,6 +6,7 @@ import type { Game } from "../data/games";
 import { useAuth } from "../context/AuthContext";
 import { isGameToHost, type HostToGame } from "../lib/games/bridge";
 import { saveScore } from "../lib/scores";
+import TouchControls from "./TouchControls";
 
 // Clave de localStorage (almacén del navegador) donde recordamos el nombre del jugador (REQ-11 / D-03).
 const NAME_KEY = "av_player_name";
@@ -213,6 +214,9 @@ export default function Player({ game }: { game: Game }) {
           <span>CARGA · 1MB</span>
         </div>
       </div>
+
+      {/* Gamepad táctil (spec 08): solo juegos embebidos; el CSS lo muestra únicamente bajo 768px. */}
+      {embed && <TouchControls iframeRef={iframeRef} paused={paused} onTogglePause={togglePause} />}
 
       {over && (
         <div className="modal-bd">

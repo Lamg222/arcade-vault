@@ -1012,6 +1012,16 @@ a { color: inherit; text-decoration: none; }
 .slide-in { animation: slideIn 260ms ease-out; }
 @keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
 
+/* ===== móvil <768px (spec 08): canvas arriba a pantalla casi completa, gamepad táctil abajo, HUD del host oculto (REQ-03/09). Este bloque va al final del archivo para ganar a las reglas responsive de 720px de arriba. ===== */
+@media (max-width: 767px) {
+  .touch-controls { display: flex; }
+  .av-player { max-width: none; margin: 0; padding: 0; }
+  .player-hud { display: none; }
+  .crt { border-radius: 0; padding: 10px; box-shadow: none; }
+  .crt-screen { aspect-ratio: auto; height: calc(100dvh - 280px); min-height: 300px; }
+  .crt-bottom { display: none; }
+}
+
 /* tweaks */
 .tw-section { margin-bottom: 14px; }
 .tw-label { font-family: var(--pixel); font-size: 9px; color: var(--ink-faint); letter-spacing: 0.14em; margin-bottom: 8px; }
