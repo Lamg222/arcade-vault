@@ -218,18 +218,72 @@ function update(dt) {
 }
 
 // ── Dibujo ───────────────────────────────────────────────────────────────────
-/* Paleta única del canvas: TODO color de dibujo sale de aquí (fuente de verdad para las skins). */
-const COL = {
-  nest: '#0a2a16', nestHole: '#0f4022', nestEdge: '#1e5c33',
-  water: '#0d2340', waterWave: 'rgba(140,190,255,0.10)',
-  safe: '#123a1e', safeStripe: 'rgba(57,255,20,0.07)',
-  road: '#15151c', roadLine: 'rgba(255,255,255,0.16)',
-  log: '#7a4a22', logVein: '#5c3517', logRing: '#9c6a38',
-  turtle: '#2fae6b', turtleShell: '#1d7a49', turtleSink: '#b9a13a', turtleSkin: '#57d18f',
-  car1: '#ff3b6b', car2: '#ffd23b', car3: '#3bd8ff',
-  glass: 'rgba(190,235,255,0.8)', wheel: '#0a0a10', headlight: '#fff6c8',
-  frog: '#39ff14', frogDark: '#1f9e0a', eyeWhite: '#f2fff0', pupil: '#05130a',
+/* Paletas del canvas por skin (convención specs/skin-designer/convencion-skins.md).
+ * El mecanismo (selección/persistencia/botón) es compartido y vive en
+ * ../_shared/skins.js; aquí SOLO se declaran los colores que salta-carril dibuja.
+ * Todas las skins comparten las MISMAS claves; `clasico` es el look original. */
+const SKIN_PALETTES = {
+  clasico: {
+    nest: '#0a2a16', nestHole: '#0f4022', nestEdge: '#1e5c33',
+    water: '#0d2340', waterWave: 'rgba(140,190,255,0.10)',
+    safe: '#123a1e', safeStripe: 'rgba(57,255,20,0.07)',
+    road: '#15151c', roadLine: 'rgba(255,255,255,0.16)',
+    log: '#7a4a22', logVein: '#5c3517', logRing: '#9c6a38',
+    turtle: '#2fae6b', turtleShell: '#1d7a49', turtleSink: '#b9a13a', turtleSkin: '#57d18f',
+    car1: '#ff3b6b', car2: '#ffd23b', car3: '#3bd8ff',
+    glass: 'rgba(190,235,255,0.8)', wheel: '#0a0a10', headlight: '#fff6c8',
+    frog: '#39ff14', frogDark: '#1f9e0a', eyeWhite: '#f2fff0', pupil: '#05130a',
+    hud: '#e8ffe0', hudBar: 'rgba(255,255,255,0.15)', danger: '#ff3b6b',
+    overlay: 'rgba(0,0,0,0.65)', overlaySub: '#cfeecc',
+  },
+  // Saturada y brillante sobre fondo casi negro: magenta/cian con violetas.
+  neon: {
+    nest: '#0d0118', nestHole: '#1b0333', nestEdge: '#8a2be2',
+    water: '#03082e', waterWave: 'rgba(0,229,255,0.14)',
+    safe: '#12002a', safeStripe: 'rgba(255,43,214,0.10)',
+    road: '#050510', roadLine: 'rgba(0,229,255,0.35)',
+    log: '#6b21a8', logVein: '#4a127a', logRing: '#9d4edd',
+    turtle: '#00e5a8', turtleShell: '#00997a', turtleSink: '#ff9f1c', turtleSkin: '#7dffd4',
+    car1: '#ff2bd6', car2: '#faff00', car3: '#00e5ff',
+    glass: 'rgba(0,229,255,0.75)', wheel: '#05010d', headlight: '#faff9c',
+    frog: '#00ff9f', frogDark: '#00a86b', eyeWhite: '#f0ffff', pupil: '#05010d',
+    hud: '#eafcff', hudBar: 'rgba(0,229,255,0.18)', danger: '#ff2bd6',
+    overlay: 'rgba(5,1,13,0.70)', overlaySub: '#f0e6ff',
+  },
+  // Fósforo verde con ámbar, estilo arcade/CRT antiguo.
+  retro: {
+    nest: '#031a03', nestHole: '#052905', nestEdge: '#1f7a1f',
+    water: '#02160e', waterWave: 'rgba(51,255,102,0.10)',
+    safe: '#0a2405', safeStripe: 'rgba(255,204,51,0.08)',
+    road: '#101008', roadLine: 'rgba(255,204,51,0.25)',
+    log: '#8a5a1f', logVein: '#6b4416', logRing: '#b07a33',
+    turtle: '#33cc55', turtleShell: '#1e8a38', turtleSink: '#ccaa33', turtleSkin: '#66e680',
+    car1: '#ff9933', car2: '#ffcc33', car3: '#66ff66',
+    glass: 'rgba(255,236,170,0.7)', wheel: '#0a0a05', headlight: '#fff0b0',
+    frog: '#33ff66', frogDark: '#1e9e3c', eyeWhite: '#f5ffe8', pupil: '#02160e',
+    hud: '#ffe9b0', hudBar: 'rgba(255,204,51,0.15)', danger: '#ff6633',
+    overlay: 'rgba(8,10,2,0.70)', overlaySub: '#ffcf7a',
+  },
+  // Modo claro: fondo claro con elementos oscuros para entornos luminosos.
+  claro: {
+    nest: '#cfe4c8', nestHole: '#eef7e8', nestEdge: '#5c9e5c',
+    water: '#bcd9f2', waterWave: 'rgba(30,80,160,0.12)',
+    safe: '#cfe6c2', safeStripe: 'rgba(40,110,40,0.10)',
+    road: '#d8d8de', roadLine: 'rgba(40,40,60,0.30)',
+    log: '#a9743d', logVein: '#7f5527', logRing: '#c58f56',
+    turtle: '#2e9e5f', turtleShell: '#1c6e42', turtleSink: '#b8952e', turtleSkin: '#4cc07e',
+    car1: '#d0304f', car2: '#d9a013', car3: '#1e8fc4',
+    glass: 'rgba(60,110,150,0.55)', wheel: '#33333d', headlight: '#c9a20a',
+    frog: '#1f9e0a', frogDark: '#136005', eyeWhite: '#ffffff', pupil: '#0a1a08',
+    hud: '#173a17', hudBar: 'rgba(0,0,0,0.15)', danger: '#c81e46',
+    overlay: 'rgba(240,244,240,0.75)', overlaySub: '#2a4a2a',
+  },
 };
+
+/* Paleta activa. Se suscribe al mecanismo compartido: al cambiar la skin basta
+ * con reasignar COL — el loop de animación repinta cada frame leyendo COL.*. */
+let COL = SKIN_PALETTES.clasico;
+AVSkin.onChange(id => { COL = SKIN_PALETTES[id] || SKIN_PALETTES.clasico; });
 
 let nowMs = 0;                               // reloj de animación (ondas del agua); lo alimenta loop()
 
@@ -403,7 +457,7 @@ function draw() {
   drawFrogSprite(frog.x + 4, frog.y + 4, FROG, false);
 
   // HUD sobre el lienzo (el HUD de React se alimenta por el puente aparte).
-  ctx.fillStyle = '#e8ffe0';
+  ctx.fillStyle = COL.hud;
   ctx.font = 'bold 16px monospace';
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillText('Score: ' + score, 10, 8);
@@ -414,9 +468,9 @@ function draw() {
 
   // Barra de cronómetro.
   const frac = Math.max(0, timeLeft) / Math.max(MIN_TIME, BASE_TIME - (level - 1) * TIME_PER_LEVEL);
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.fillStyle = COL.hudBar;
   ctx.fillRect(10, canvas.height - 12, canvas.width - 20, 6);
-  ctx.fillStyle = frac < 0.25 ? '#ff3b6b' : COL.frog;
+  ctx.fillStyle = frac < 0.25 ? COL.danger : COL.frog;
   ctx.fillRect(10, canvas.height - 12, (canvas.width - 20) * frac, 6);
 
   if (!started && !gameOver) drawOverlay('SALTA CARRIL', 'FLECHAS PARA CRUZAR');
@@ -425,14 +479,14 @@ function draw() {
 }
 
 function drawOverlay(title, subtitle) {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+  ctx.fillStyle = COL.overlay;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = COL.frog;
   ctx.font = 'bold 44px monospace';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(title, canvas.width / 2, canvas.height / 2 - 18);
   if (subtitle) {
-    ctx.fillStyle = '#cfeecc';
+    ctx.fillStyle = COL.overlaySub;
     ctx.font = 'bold 16px monospace';
     ctx.fillText(subtitle, canvas.width / 2, canvas.height / 2 + 26);
   }
