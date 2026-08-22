@@ -218,11 +218,20 @@ function update(dt) {
 }
 
 // ── Dibujo ───────────────────────────────────────────────────────────────────
+/* Paleta única del canvas: TODO color de dibujo sale de aquí (fuente de verdad para las skins). */
 const COL = {
-  nest: '#0a2a16', water: '#0d2340', safe: '#123a1e', road: '#15151c',
-  log: '#7a4a22', turtle: '#2fae6b', turtleSink: '#b9a13a',
-  car1: '#ff3b6b', car2: '#ffd23b', car3: '#3bd8ff', frog: '#39ff14',
+  nest: '#0a2a16', nestHole: '#0f4022', nestEdge: '#1e5c33',
+  water: '#0d2340', waterWave: 'rgba(140,190,255,0.10)',
+  safe: '#123a1e', safeStripe: 'rgba(57,255,20,0.07)',
+  road: '#15151c', roadLine: 'rgba(255,255,255,0.16)',
+  log: '#7a4a22', logVein: '#5c3517', logRing: '#9c6a38',
+  turtle: '#2fae6b', turtleShell: '#1d7a49', turtleSink: '#b9a13a', turtleSkin: '#57d18f',
+  car1: '#ff3b6b', car2: '#ffd23b', car3: '#3bd8ff',
+  glass: 'rgba(190,235,255,0.8)', wheel: '#0a0a10', headlight: '#fff6c8',
+  frog: '#39ff14', frogDark: '#1f9e0a', eyeWhite: '#f2fff0', pupil: '#05130a',
 };
+
+let nowMs = 0;                               // reloj de animación (ondas del agua); lo alimenta loop()
 
 function drawRow(row) {
   const y = row * CELL;
@@ -237,14 +246,137 @@ function drawRoundRect(x, y, w, h, r, color) {
   ctx.fill();
 }
 
-function draw() {
+// Fondos con detalle: ondas en el agua, líneas discontinuas entre carriles, rayado sutil en aceras.
+function drawBackdrop() {
   for (let row = 0; row < ROWS; row++) drawRow(row);
 
-  // Nidos.
+  ctx.fillStyle = COL.waterWave;
+  for (let row = 1; row <= 5; row++) {
+    const y = row * CELL;
+    const phase = ((nowMs / 40) + row * 37) % (CELL * 2);   // deriva lenta, desfasada por fila
+    for (let x = -CELL * 2; x < canvas.width + CELL; x += CELL * 2) {
+      ctx.beginPath();
+      ctx.ellipse(x + phase, y + CELL * 0.7, CELL * 0.55, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.strokeStyle = COL.roadLine;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([14, 12]);
+  for (let row = 8; row <= 11; row++) {                      // separadores entre los 5 carriles
+    const y = row * CELL;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = COL.safeStripe;
+  for (const row of [6, 12, 13, 14]) {
+    const y = row * CELL;
+    for (let x = 0; x < canvas.width; x += CELL) ctx.fillRect(x + 2, y + CELL - 6, CELL - 4, 3);
+  }
+}
+
+function drawNests() {
   for (let i = 0; i < NEST_COLS.length; i++) {
     const x = NEST_COLS[i] * CELL;
-    drawRoundRect(x + 3, 3, CELL - 6, CELL - 6, 6, nests[i] ? COL.frog : '#0f4022');
+    drawRoundRect(x + 2, 2, CELL - 4, CELL - 4, 8, COL.nestEdge);      // borde de seto
+    drawRoundRect(x + 5, 5, CELL - 10, CELL - 10, 6, COL.nestHole);    // hueco
+    if (nests[i]) drawFrogSprite(x + 4, 4, FROG, true);                 // rana ya instalada
   }
+}
+
+function drawLog(e, y) {
+  drawRoundRect(e.x, y + 6, e.w, CELL - 12, 7, COL.log);
+  ctx.strokeStyle = COL.logVein;                              // vetas de la madera
+  ctx.lineWidth = 2;
+  for (let i = 1; i <= 2; i++) {
+    const vy = y + 6 + (CELL - 12) * (i / 3);
+    ctx.beginPath(); ctx.moveTo(e.x + 6, vy); ctx.lineTo(e.x + e.w - 6, vy); ctx.stroke();
+  }
+  ctx.fillStyle = COL.logRing;                                // anillos de corte en los extremos
+  ctx.beginPath(); ctx.ellipse(e.x + 5, y + CELL / 2, 4, (CELL - 14) / 2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(e.x + e.w - 5, y + CELL / 2, 4, (CELL - 14) / 2, 0, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawTurtles(e, y) {
+  const body = sinking(e) ? COL.turtleSink : COL.turtle;
+  const shell = sinking(e) ? COL.turtleSink : COL.turtleShell;
+  const n = Math.max(2, Math.round(e.w / CELL));              // el grupo se dibuja como n tortugas
+  const d = e.w / n;
+  for (let i = 0; i < n; i++) {
+    const cx = e.x + d * i + d / 2;
+    const cy = y + CELL / 2;
+    ctx.fillStyle = COL.turtleSkin;                           // cabeza asomando en el sentido de avance
+    ctx.beginPath(); ctx.arc(cx + e.dir * (d / 2 - 4), cy, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = body;
+    ctx.beginPath(); ctx.ellipse(cx, cy, d / 2 - 3, CELL / 2 - 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = shell;                                  // dibujo del caparazón
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(cx, cy, d / 2 - 8, CELL / 2 - 11, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - d / 4, cy); ctx.lineTo(cx + d / 4, cy); ctx.stroke();
+  }
+}
+
+function drawVehicle(e, y, color) {
+  const h = CELL - 12;
+  const top = y + 6;
+  const truck = e.w > CELL * 1.6;                             // los anchos largos se dibujan como camión
+  ctx.fillStyle = COL.wheel;                                  // ruedas por debajo del cuerpo
+  for (const wx of [e.x + e.w * 0.2, e.x + e.w * 0.8]) {
+    ctx.beginPath(); ctx.arc(wx, top + h + 1, 5, 0, Math.PI * 2); ctx.fill();
+  }
+  if (truck) {
+    const cabW = e.w * 0.28;
+    const cabX = e.dir === 1 ? e.x + e.w - cabW : e.x;        // cabina al frente según el sentido
+    const boxX = e.dir === 1 ? e.x : e.x + cabW + 2;
+    drawRoundRect(boxX, top, e.w - cabW - 2, h, 4, color);    // caja de carga
+    drawRoundRect(cabX, top + 2, cabW, h - 2, 5, color);      // cabina
+    ctx.fillStyle = COL.glass;                                // parabrisas de la cabina
+    const glassX = e.dir === 1 ? cabX + cabW * 0.15 : cabX + cabW * 0.45;
+    ctx.fillRect(glassX, top + 4, cabW * 0.4, h * 0.4);
+  } else {
+    drawRoundRect(e.x, top, e.w, h, 8, color);                // carrocería
+    ctx.fillStyle = COL.glass;                                // parabrisas + luneta
+    ctx.fillRect(e.x + e.w * 0.3, top + 3, e.w * 0.18, h - 6);
+    ctx.fillRect(e.x + e.w * 0.58, top + 3, e.w * 0.14, h - 6);
+  }
+  ctx.fillStyle = COL.headlight;                              // faro al frente
+  const lx = e.dir === 1 ? e.x + e.w - 3 : e.x;
+  ctx.fillRect(lx, top + 3, 3, 6);
+  ctx.fillRect(lx, top + h - 9, 3, 6);
+}
+
+// Rana con ojos saltones y patas; `seated` = silueta quieta dentro de un nido.
+function drawFrogSprite(px, py, s, seated) {
+  const cx = px + s / 2, cy = py + s / 2;
+  ctx.strokeStyle = COL.frogDark;                             // patas en diagonal
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  for (const [dx1, dy1, dx2, dy2] of [
+    [-0.28, -0.1, -0.46, -0.32], [0.28, -0.1, 0.46, -0.32],   // delanteras
+    [-0.28, 0.18, -0.5, 0.42], [0.28, 0.18, 0.5, 0.42],       // traseras
+  ]) {
+    ctx.beginPath();
+    ctx.moveTo(cx + s * dx1, cy + s * dy1);
+    ctx.lineTo(cx + s * dx2, cy + s * dy2);
+    ctx.stroke();
+  }
+  ctx.fillStyle = seated ? COL.frogDark : COL.frog;           // cuerpo
+  ctx.beginPath(); ctx.ellipse(cx, cy + s * 0.06, s * 0.34, s * 0.4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = COL.frogDark;                               // lomo
+  ctx.beginPath(); ctx.ellipse(cx, cy + s * 0.12, s * 0.2, s * 0.24, 0, 0, Math.PI * 2); ctx.fill();
+  for (const ex of [-0.2, 0.2]) {                             // ojos saltones con pupila
+    ctx.fillStyle = COL.eyeWhite;
+    ctx.beginPath(); ctx.arc(cx + s * ex, cy - s * 0.3, s * 0.14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = COL.pupil;
+    ctx.beginPath(); ctx.arc(cx + s * ex, cy - s * 0.32, s * 0.06, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+function draw() {
+  drawBackdrop();
+  drawNests();
 
   // Río: troncos y tortugas.
   for (const lane of waterLanes) {
@@ -252,9 +384,9 @@ function draw() {
     for (const e of lane.entities) {
       if (e.turtle) {
         if (submerged(e)) continue;                        // hundida: no se dibuja (insegura)
-        drawRoundRect(e.x, y + 5, e.w, CELL - 10, 10, sinking(e) ? COL.turtleSink : COL.turtle);
+        drawTurtles(e, y);
       } else {
-        drawRoundRect(e.x, y + 6, e.w, CELL - 12, 5, COL.log);
+        drawLog(e, y);
       }
     }
   }
@@ -264,15 +396,11 @@ function draw() {
   for (let li = 0; li < roadLanes.length; li++) {
     const lane = roadLanes[li];
     const y = lane.row * CELL;
-    for (const e of lane.entities) drawRoundRect(e.x, y + 5, e.w, CELL - 10, 5, carColors[li % 3]);
+    for (const e of lane.entities) drawVehicle(e, y, carColors[li % 3]);
   }
 
   // Rana.
-  drawRoundRect(frog.x + 4, frog.y + 4, FROG, FROG, 8, COL.frog);
-  ctx.fillStyle = '#05130a';
-  const cx = frog.x + 4;
-  ctx.beginPath(); ctx.arc(cx + FROG * 0.32, frog.y + FROG * 0.45, 2.5, 0, 7); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx + FROG * 0.68, frog.y + FROG * 0.45, 2.5, 0, 7); ctx.fill();
+  drawFrogSprite(frog.x + 4, frog.y + 4, FROG, false);
 
   // HUD sobre el lienzo (el HUD de React se alimenta por el puente aparte).
   ctx.fillStyle = '#e8ffe0';
@@ -317,6 +445,7 @@ function loop(timestamp) {
   if (lastTime === null) lastTime = timestamp;
   let dt = timestamp - lastTime;
   lastTime = timestamp;
+  nowMs = timestamp;                          // alimenta las animaciones de fondo (ondas)
   if (dt > 100) dt = 100;                     // clamp tras pestaña en 2º plano (evita saltos)
 
   if (!paused && !gameOver) update(dt);
