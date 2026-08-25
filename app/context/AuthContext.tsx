@@ -32,11 +32,16 @@ export function AuthProvider({
 }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser>(initialUser);
+  const [prevInitial, setPrevInitial] = useState<AuthUser>(initialUser);
 
-  // Si el servidor re-renderiza con otra sesión (tras router.refresh()), sincroniza.
-  useEffect(() => {
+  /* Si el servidor re-renderiza con otra sesión (tras router.refresh()), sincroniza. Patrón "derived state" de React: ajustar estado durante el render evita el setState-en-effect. */
+  if (
+    (initialUser?.id ?? null) !== (prevInitial?.id ?? null) ||
+    (initialUser?.username ?? null) !== (prevInitial?.username ?? null)
+  ) {
+    setPrevInitial(initialUser);
     setUser(initialUser);
-  }, [initialUser]);
+  }
 
   useEffect(() => {
     let supabase;
