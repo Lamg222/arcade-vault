@@ -31,8 +31,8 @@ export async function proxy(request: NextRequest) {
   });
 
   try {
-    // getUser() valida el token contra Supabase y, si expiró, lo refresca vía setAll.
-    await supabase.auth.getUser();
+    /* getClaims() valida el JWT localmente (firma asimétrica, sin round-trip a Supabase cuando el token sigue vigente — NFR-01) y dispara el refresco vía setAll solo cuando expiró. */
+    await supabase.auth.getClaims();
   } catch {
     // NFR-05: auth caído no bloquea la navegación.
   }
