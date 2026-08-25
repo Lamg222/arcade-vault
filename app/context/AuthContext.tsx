@@ -1,27 +1,70 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "../lib/supabase/client";
+import { signOutAction } from "../lib/auth/actions";
+import { usernameFromUser } from "../lib/auth/username";
 
-export type User = { name: string } | null;
+// Usuario de sesión real (spec 09): id de auth.users + username de user_metadata.
+export type AuthUser = { id: string; username: string } | null;
 
 type AuthContextValue = {
-  user: User;
-  login: (name: string) => void;
+  user: AuthUser;
   signOut: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  // Estado solo en memoria: se pierde al recargar (sin persistencia, por diseño).
-  const [user, setUser] = useState<User>(null);
+/* REQ-17: el estado sale de la sesión real de Supabase. `initialUser` llega del servidor (layout.tsx) — así el primer render ya trae la sesión de las cookies, sin parpadeo. En el navegador, onAuthStateChange mantiene el estado al día (login, logout, refresco de token, retorno OAuth). */
+export function AuthProvider({
+  initialUser,
+  children,
+}: {
+  initialUser: AuthUser;
+  children: ReactNode;
+}) {
+  const router = useRouter();
+  const [user, setUser] = useState<AuthUser>(initialUser);
 
-  const login = (name: string) =>
-    setUser({ name: (name || "PLAYER1").toUpperCase().slice(0, 10) });
-  const signOut = () => setUser(null);
+  // Si el servidor re-renderiza con otra sesión (tras router.refresh()), sincroniza.
+  useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
+
+  useEffect(() => {
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch {
+      // NFR-05: sin config de Supabase la app sigue en modo invitado.
+      return;
+    }
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user;
+      setUser(u ? { id: u.id, username: usernameFromUser(u) } : null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  // REQ-07: logout real — invalida cookies en el servidor y refresca los Server Components.
+  const signOut = async () => {
+    setUser(null);
+    try {
+      await signOutAction();
+    } finally {
+      router.refresh();
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, signOut }}>
+    <AuthContext.Provider value={{ user, signOut }}>
       {children}
     </AuthContext.Provider>
   );
