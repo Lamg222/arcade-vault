@@ -5,6 +5,12 @@ export const metadata: Metadata = {
   title: "Acceso",
 };
 
-export default function AuthPage() {
-  return <Auth />;
+/* `searchParams` es Promise en Next 16. `error` lo escribe el callback de auth (enlace expirado, OAuth cancelado — REQ-10/12). */
+export default async function AuthPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+  return <Auth callbackError={error} />;
 }
