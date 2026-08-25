@@ -29,8 +29,9 @@ export default function Player({ game }: { game: Game }) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  /* REQ-11: pre-rellena el nombre desde localStorage al abrir el modal de fin. Se lee en el handler (no en un useEffect) para no provocar hydration mismatch en el SSR ni disparar la regla react-hooks/set-state-in-effect. */
+  /* REQ-11 (spec 06): pre-rellena el nombre desde localStorage al abrir el modal de fin — SOLO invitados (REQ-19 spec 09); con sesión el nombre es el username del perfil y no se toca. Se lee en el handler (no en un useEffect) para no provocar hydration mismatch en el SSR ni disparar la regla react-hooks/set-state-in-effect. */
   const prefillName = () => {
+    if (user) return;
     try {
       const stored = localStorage.getItem(NAME_KEY);
       if (stored) setName(stored);
@@ -39,17 +40,19 @@ export default function Player({ game }: { game: Game }) {
     }
   };
 
-  // REQ-08/09/11: guarda el score vía Server Action; si va bien, persiste el nombre y muestra éxito; si falla, muestra el error sin fingir éxito.
+  /* REQ-08/09/11 (spec 06) + REQ-18/19 (spec 09): guarda el score vía Server Action. Con sesión, el servidor usa user_id + username del perfil (el nombre enviado se ignora). Solo invitados persisten su nombre en localStorage. */
   const handleSave = async () => {
     setSaveError(null);
     setSaving(true);
     const res = await saveScore(game.id, name, score);
     setSaving(false);
     if (res.ok) {
-      try {
-        localStorage.setItem(NAME_KEY, name.trim().toUpperCase().slice(0, 10));
-      } catch {
-        // Ignorado: el guardado en la base de datos sí ocurrió.
+      if (!user) {
+        try {
+          localStorage.setItem(NAME_KEY, name.trim().toUpperCase().slice(0, 10));
+        } catch {
+          // Ignorado: el guardado en la base de datos sí ocurrió.
+        }
       }
       setSaved(true);
     } else {
@@ -226,13 +229,16 @@ export default function Player({ game }: { game: Game }) {
             <div className="final">{score.toLocaleString("es-ES")}</div>
             {!saved ? (
               <>
+                {/* REQ-18: con sesión, sin caja de nombre — el score va con el username del perfil. */}
                 <div className="input-row">
-                  <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 10))}
-                    placeholder="TUS INICIALES"
-                    disabled={saving}
-                  />
+                  {!user && (
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 10))}
+                      placeholder="TUS INICIALES"
+                      disabled={saving}
+                    />
+                  )}
                   <button className="btn yellow" onClick={handleSave} disabled={saving}>
                     {saving ? "GUARDANDO…" : "GUARDAR PUNTUACIÓN"}
                   </button>

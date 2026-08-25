@@ -12,6 +12,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "./supabase/server";
+import { usernameFromUser } from "./auth/username";
 
 // Fila de score ya lista para la UI (incluye el título del juego para la vista global).
 export type ScoreEntry = {
@@ -88,27 +89,42 @@ export async function getGameTop(gameId: string, limit = 10): Promise<ReadResult
 // Resultado del guardado: discriminado para que la UI muestre éxito o el error real.
 export type SaveResult = { ok: true } | { ok: false; error: string };
 
-// REQ-08/09: Server Action que inserta un score. Valida en la app ANTES de tocar la
-// base de datos (defensa temprana) y confía además en los CHECK/FK de la base de datos
-// (NFR-02). Nunca finge éxito: si la inserción falla, devuelve el error.
+/* REQ-08/09 (spec 06) + REQ-18/19 (spec 09): Server Action que inserta un score. Con sesión activa, el servidor decide la identidad — user_id del usuario y player_name = username de user_metadata; el nombre que mande el cliente se ignora (no se puede suplantar a otro). Sin sesión (invitado), flujo original: nombre libre validado, user_id NULL. Valida en la app ANTES de tocar la base de datos y confía además en los CHECK/FK (NFR-02). Nunca finge éxito. */
 export async function saveScore(
   gameId: string,
   playerName: string,
   score: number,
 ): Promise<SaveResult> {
-  const name = (playerName ?? "").trim().toUpperCase().slice(0, 10);
-
-  // Validación de forma (REQ-09). El CHECK de la base de datos es la última línea.
-  if (name.length < 1) return { ok: false, error: "Escribe tus iniciales (1-10)." };
-  if (name.length > 10) return { ok: false, error: "El nombre no puede pasar de 10 caracteres." };
   if (!Number.isInteger(score) || score < 0)
     return { ok: false, error: "Puntuación inválida." };
 
   try {
     const supabase = await createClient();
+
+    // NFR-05: si auth falla, degrada a invitado en vez de bloquear el guardado.
+    let user = null;
+    try {
+      user = (await supabase.auth.getUser()).data.user;
+    } catch {
+      user = null;
+    }
+
+    let name: string;
+    let userId: string | null = null;
+    if (user) {
+      name = usernameFromUser(user);
+      userId = user.id;
+    } else {
+      name = (playerName ?? "").trim().toUpperCase().slice(0, 10);
+      // Validación de forma (REQ-09 spec 06). El CHECK de la base de datos es la última línea.
+      if (name.length < 1) return { ok: false, error: "Escribe tus iniciales (1-10)." };
+      if (name.length > 10)
+        return { ok: false, error: "El nombre no puede pasar de 10 caracteres." };
+    }
+
     const { error } = await supabase
       .from("scores")
-      .insert({ game_id: gameId, player_name: name, score });
+      .insert({ game_id: gameId, player_name: name, score, user_id: userId });
     // error incluye violación de CHECK (nombre/score) o FK (game_id inexistente) — AC-08/10.
     if (error) return { ok: false, error: error.message };
   } catch (e) {
