@@ -45,3 +45,6 @@ next-env.d.ts
 # playwright
 .playwright-screenshots/*
 !.playwright-screenshots/.gitkeep
+
+# Credenciales locales (OAuth y similares) — nunca se versionan
+.secrets/
