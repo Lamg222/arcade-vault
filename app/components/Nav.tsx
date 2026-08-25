@@ -49,7 +49,7 @@ export default function Nav() {
         </div>
         {user ? (
           <button className="btn ghost auth-btn" onClick={signOut}>
-            {user.name} ▾
+            {user.username} ▾
           </button>
         ) : (
           <Link href="/auth" className="btn auth-btn">
