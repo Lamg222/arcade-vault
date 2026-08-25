@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { signIn, signUp } from "../lib/auth/actions";
+import { resendConfirmation, signIn, signUp } from "../lib/auth/actions";
 import { createClient } from "../lib/supabase/client";
 
 /* Pantalla de acceso real (spec 09). `callbackError` llega de /auth?error=... — mensajes del callback (enlace expirado, OAuth cancelado; REQ-10/12). */
@@ -89,6 +89,26 @@ export default function Auth({ callbackError }: { callbackError?: string }) {
     router.push("/biblioteca");
   };
 
+  /* AC-11: ofrecer reenvío del enlace de confirmación cuando el error apunta a correo sin confirmar o enlace caducado. */
+  const confirmationIssue =
+    !!error && /confirma tu correo|expiró|inválido o incompleto/i.test(error);
+
+  const resend = async () => {
+    if (!email.trim()) {
+      setError("Escribe tu email arriba para reenviarte el enlace.");
+      return;
+    }
+    setBusy(true);
+    const res = await resendConfirmation(email);
+    setBusy(false);
+    setError(null);
+    if (res.ok) {
+      setNotice("Si la cuenta existe y sigue sin confirmar, te reenviamos el enlace.");
+    } else {
+      setError(res.error);
+    }
+  };
+
   return (
     <div className="av-auth-wrap fade-in">
       <div className="auth-card">
@@ -145,6 +165,16 @@ export default function Auth({ callbackError }: { callbackError?: string }) {
           {error && (
             <div className="mono mt-2 text-[11px] tracking-[0.12em] text-[color:var(--magenta)]">
               ▸ {error}
+              {confirmationIssue && (
+                <button
+                  type="button"
+                  className="ml-2 underline"
+                  onClick={resend}
+                  disabled={busy}
+                >
+                  REENVIAR CONFIRMACIÓN
+                </button>
+              )}
             </div>
           )}
           {notice && (

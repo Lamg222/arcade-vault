@@ -35,9 +35,13 @@ export async function GET(request: Request) {
     const user = data.user;
     if (user && typeof user.user_metadata?.username !== "string") {
       try {
-        await supabase.auth.updateUser({ data: { username: usernameFromUser(user) } });
+        const { error: metaError } = await supabase.auth.updateUser({
+          data: { username: usernameFromUser(user) },
+        });
+        /* Fallo (como valor o excepción) no bloquea la sesión: el siguiente login reintenta esta rama y usernameFromUser deriva al vuelo mientras tanto. */
+        if (metaError) console.warn("No se persistió username OAuth:", metaError.message);
       } catch {
-        // Sesión válida aunque no se persista el username; se deriva al leerlo.
+        // Ver comentario anterior.
       }
     }
 

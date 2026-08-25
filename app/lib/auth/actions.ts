@@ -46,7 +46,7 @@ export async function signUp(
   try {
     const supabase = await createClient();
     const origin = await requestOrigin();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
@@ -55,6 +55,9 @@ export async function signUp(
       },
     });
     if (error) return { ok: false, error: friendlyError(error.message) };
+    /* REQ-04 / AC-10: con "Confirm email" activo, un email ya registrado devuelve éxito ofuscado (usuario stub sin identities) en vez de error — detectarlo evita el falso "revisa tu correo". */
+    if (data.user && (data.user.identities?.length ?? 0) === 0)
+      return { ok: false, error: "Ese email ya tiene cuenta." };
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "No se pudo registrar." };
@@ -85,6 +88,22 @@ export async function signOutAction(): Promise<AuthResult> {
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "No se pudo cerrar sesión." };
+  }
+}
+
+/* AC-11: reenvía el correo de confirmación para una cuenta aún sin confirmar (enlace caducado o perdido). Respuesta neutra, misma lógica anti-enumeración que el reseteo (NFR-04). */
+export async function resendConfirmation(email: string): Promise<AuthResult> {
+  try {
+    const supabase = await createClient();
+    const origin = await requestOrigin();
+    await supabase.auth.resend({
+      type: "signup",
+      email: email.trim(),
+      options: { emailRedirectTo: `${origin}/auth/callback?next=/biblioteca` },
+    });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "No se pudo reenviar." };
   }
 }
 
