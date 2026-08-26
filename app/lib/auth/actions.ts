@@ -10,8 +10,10 @@ import { normalizeUsername } from "./username";
 
 export type AuthResult = { ok: true } | { ok: false; error: string };
 
-// Origen de la petición actual (http://localhost:3000 en dev) para construir las URLs de retorno de los correos y de OAuth.
+/* Origen para las URLs de retorno de correos y OAuth. NEXT_PUBLIC_SITE_URL (si está definida) gana: fija un origen canónico para que el mismo enlace de correo funcione desde cualquier dispositivo (p.ej. la IP LAN en dev, el dominio en producción). Sin ella, se usa el origen de la petición. */
 async function requestOrigin(): Promise<string> {
+  const fixed = process.env.NEXT_PUBLIC_SITE_URL;
+  if (fixed) return fixed.replace(/\/+$/, "");
   const h = await headers();
   return h.get("origin") ?? `http://${h.get("host") ?? "localhost:3000"}`;
 }
